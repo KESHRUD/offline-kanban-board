@@ -1,0 +1,101 @@
+.kanban-column {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 16px;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #e5e7eb;
+  transition: all 0.2s;
+}
+
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.column-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  color: #1f2937;
+}
+
+.column-count {
+  background: #667eea;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.column-tasks {
+  flex: 1;
+  min-height: 200px;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.column-tasks.drag-over {
+  background-color: rgba(102, 126, 234, 0.1);
+  border: 2px dashed #667eea;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  color: #9ca3af;
+  text-align: center;
+  height: 100%;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.empty-hint {
+  font-size: 14px;
+  font-weight: 400;
+  margin-top: 8px !important;
+  color: #d1d5db;
+}
+
+/* Column-specific colors */
+.kanban-column:nth-child(1) .column-count {
+  background: #f59e0b;
+}
+
+.kanban-column:nth-child(2) .column-count {
+  background: #3b82f6;
+}
+
+.kanban-column:nth-child(3) .column-count {
+  background: #10b981;
+}
+
+@media (max-width: 768px) {
+  .kanban-column {
+    padding: 12px;
+    min-height: 300px;
+  }
+
+  .column-title {
+    font-size: 16px;
+  }
+
+  .column-count {
+    font-size: 12px;
+    padding: 2px 8px;
+  }
+}

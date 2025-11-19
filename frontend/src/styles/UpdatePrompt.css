@@ -1,0 +1,91 @@
+.update-prompt {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding: 16px 20px;
+  max-width: 400px;
+  z-index: 1000;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.update-prompt-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.update-prompt-content.offline-ready {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.update-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.update-message {
+  flex: 1;
+}
+
+.update-message strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.update-message p {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.offline-ready .update-message p {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.btn-update {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.btn-update:hover {
+  transform: scale(1.05);
+}
+
+.btn-update:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 640px) {
+  .update-prompt {
+    bottom: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+}
