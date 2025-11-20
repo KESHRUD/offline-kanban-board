@@ -24,9 +24,9 @@ test.describe('PWA Features', () => {
     expect(manifest.icons).toHaveLength(3);
   });
 
-  test('should register service worker', async ({ page, context }) => {
+  test('should register service worker', async ({ page, context: _context }) => {
     // Grant notification permission for PWA
-    await context.grantPermissions(['notifications']);
+    await _context.grantPermissions(['notifications']);
 
     // Wait for service worker registration
     await page.waitForFunction(() => 
@@ -90,7 +90,7 @@ test.describe('PWA Features', () => {
     await expect(page.locator('h1')).toContainText('Offline Kanban Board');
   });
 
-  test('should be installable as PWA', async ({ page, context }) => {
+  test('should be installable as PWA', async ({ page, context: _context }) => {
     // Check for PWA install prompt capability
     const hasBeforeInstallPrompt = await page.evaluate(() => {
       return new Promise((resolve) => {

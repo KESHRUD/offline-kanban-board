@@ -100,10 +100,10 @@ export const handlers = [
 
   // POST /api/tasks - Create new task
   http.post('http://localhost:3000/api/tasks', async ({ request }) => {
-    const body = await request.json();
+    const body = await request.json() as any;
     
     // Validation
-    if (!body.title) {
+    if (!body?.title) {
       return HttpResponse.json(
         { error: 'Title is required' },
         { status: 400 }
@@ -112,10 +112,10 @@ export const handlers = [
     
     const newTask = {
       id: String(tasks.length + 1),
-      title: body.title,
-      description: body.description || '',
-      status: body.status || 'todo',
-      priority: body.priority || 'medium',
+      title: body.title as string,
+      description: (body.description as string) || '',
+      status: (body.status as string) || 'todo',
+      priority: (body.priority as string) || 'medium',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -131,7 +131,7 @@ export const handlers = [
   // PUT /api/tasks/:id - Update task
   http.put('http://localhost:3000/api/tasks/:id', async ({ params, request }) => {
     const { id } = params;
-    const body = await request.json();
+    const body = await request.json() as any;
     
     const taskIndex = tasks.findIndex((t) => t.id === id);
     
@@ -144,7 +144,7 @@ export const handlers = [
     
     tasks[taskIndex] = {
       ...tasks[taskIndex],
-      ...body,
+      ...(body as object),
       updatedAt: new Date().toISOString(),
     };
     
@@ -182,9 +182,9 @@ export const handlers = [
 
   // POST /api/boards - Create new board
   http.post('http://localhost:3000/api/boards', async ({ request }) => {
-    const body = await request.json();
+    const body = await request.json() as any;
     
-    if (!body.name) {
+    if (!body?.name) {
       return HttpResponse.json(
         { error: 'Name is required' },
         { status: 400 }
@@ -193,7 +193,7 @@ export const handlers = [
     
     const newBoard = {
       id: String(boards.length + 1),
-      name: body.name,
+      name: body.name as string,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

@@ -11,12 +11,11 @@ export const server = setupServer(...handlers);
 
 // Setup MSW for tests
 export const setupMockServer = () => {
-  // Start server before all tests
-  beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
-
-  // Reset handlers after each test
-  afterEach(() => server.resetHandlers());
-
-  // Clean up after all tests
-  afterAll(() => server.close());
+  // Note: beforeAll, afterEach, afterAll are available in test files (Vitest)
+  // This function should be called in test setup files
+  return {
+    beforeAll: () => server.listen({ onUnhandledRequest: 'error' }),
+    afterEach: () => server.resetHandlers(),
+    afterAll: () => server.close(),
+  };
 };
