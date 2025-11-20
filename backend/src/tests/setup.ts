@@ -1,6 +1,6 @@
 // Vitest global setup for backend tests
 import { afterAll, beforeAll } from 'vitest';
-import { app } from '../../index';
+import app from '@app/index';
 import request from 'supertest';
 
 // You can add DB setup/teardown here if needed
