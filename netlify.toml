@@ -1,0 +1,99 @@
+# ============================================================================
+# Netlify Configuration
+# Optimized for React PWA with Vite
+# ============================================================================
+
+[build]
+  # Build command
+  command = "cd frontend && npm ci && npm run build"
+  
+  # Publish directory
+  publish = "frontend/dist"
+  
+  # Functions directory (if using Netlify Functions)
+  # functions = "netlify/functions"
+
+[build.environment]
+  # Node version
+  NODE_VERSION = "20"
+  
+  # Build environment
+  NODE_ENV = "production"
+
+# ============================================================================
+# Redirects & Rewrites (SPA Routing)
+# ============================================================================
+
+# Redirect all requests to index.html for client-side routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# API proxy to backend (if needed)
+# [[redirects]]
+#   from = "/api/*"
+#   to = "https://kanban-backend-xxx.run.app/api/:splat"
+#   status = 200
+#   force = true
+
+# ============================================================================
+# Headers (Security & Performance)
+# ============================================================================
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Security headers
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "no-referrer-when-downgrade"
+    
+    # CORS (if needed for API)
+    # Access-Control-Allow-Origin = "*"
+
+# Service Worker - must NOT be cached
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+
+# Workbox files - must NOT be cached
+[[headers]]
+  for = "/workbox-*.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+
+# Manifest - cache for 1 day
+[[headers]]
+  for = "/*.webmanifest"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+# Static assets - cache for 1 year
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# ============================================================================
+# Forms (if using Netlify Forms)
+# ============================================================================
+
+# [[plugins]]
+#   package = "@netlify/plugin-lighthouse"
+
+# ============================================================================
+# Dev Server (Netlify Dev)
+# ============================================================================
+
+[dev]
+  command = "cd frontend && npm run dev"
+  port = 5173
+  targetPort = 5173
+  autoLaunch = false
