@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 const router = Router();
 
 // In-memory storage (will be replaced with database later)
-let tasks: Task[] = [
+const tasks: Task[] = [
   {
     id: '1',
     title: 'Setup project',

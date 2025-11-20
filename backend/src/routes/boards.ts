@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 const router = Router();
 
 // In-memory storage
-let boards: Board[] = [
+const boards: Board[] = [
   {
     id: '1',
     name: 'My Kanban Board',
