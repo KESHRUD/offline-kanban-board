@@ -90,7 +90,7 @@ test.describe('PWA Features', () => {
     await expect(page.locator('h1')).toContainText('Offline Kanban Board');
   });
 
-  test('should be installable as PWA', async ({ page, context: _context }) => {
+  test('should be installable as PWA', async ({ page }) => {
     // Check for PWA install prompt capability
     const hasBeforeInstallPrompt = await page.evaluate(() => {
       return new Promise((resolve) => {

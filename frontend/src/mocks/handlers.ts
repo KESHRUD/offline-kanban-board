@@ -5,6 +5,25 @@
 
 import { http, HttpResponse } from 'msw';
 
+// Type definitions for request bodies
+interface CreateTaskBody {
+  title: string;
+  description?: string;
+  status?: string;
+  priority?: string;
+}
+
+interface UpdateTaskBody {
+  title?: string;
+  description?: string;
+  status?: string;
+  priority?: string;
+}
+
+interface CreateBoardBody {
+  name: string;
+}
+
 // In-memory storage for mock data
 let tasks = [
   {
@@ -100,7 +119,7 @@ export const handlers = [
 
   // POST /api/tasks - Create new task
   http.post('http://localhost:3000/api/tasks', async ({ request }) => {
-    const body = await request.json() as any;
+    const body = await request.json() as CreateTaskBody;
     
     // Validation
     if (!body?.title) {
@@ -112,10 +131,10 @@ export const handlers = [
     
     const newTask = {
       id: String(tasks.length + 1),
-      title: body.title as string,
-      description: (body.description as string) || '',
-      status: (body.status as string) || 'todo',
-      priority: (body.priority as string) || 'medium',
+      title: body.title,
+      description: body.description || '',
+      status: body.status || 'todo',
+      priority: body.priority || 'medium',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -131,7 +150,7 @@ export const handlers = [
   // PUT /api/tasks/:id - Update task
   http.put('http://localhost:3000/api/tasks/:id', async ({ params, request }) => {
     const { id } = params;
-    const body = await request.json() as any;
+    const body = await request.json() as UpdateTaskBody;
     
     const taskIndex = tasks.findIndex((t) => t.id === id);
     
@@ -144,7 +163,7 @@ export const handlers = [
     
     tasks[taskIndex] = {
       ...tasks[taskIndex],
-      ...(body as object),
+      ...body,
       updatedAt: new Date().toISOString(),
     };
     
@@ -182,7 +201,7 @@ export const handlers = [
 
   // POST /api/boards - Create new board
   http.post('http://localhost:3000/api/boards', async ({ request }) => {
-    const body = await request.json() as any;
+    const body = await request.json() as CreateBoardBody;
     
     if (!body?.name) {
       return HttpResponse.json(
@@ -193,7 +212,7 @@ export const handlers = [
     
     const newBoard = {
       id: String(boards.length + 1),
-      name: body.name as string,
+      name: body.name,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
