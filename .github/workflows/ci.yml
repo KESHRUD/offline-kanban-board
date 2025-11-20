@@ -108,6 +108,36 @@ jobs:
         working-directory: ./frontend
         run: npm ci
       
+      - name: Install wait-on globally
+        run: npm install -g wait-on
+      
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm ci
+      
+      - name: Build backend
+        working-directory: ./backend
+        run: npm run build
+      
+      - name: Start backend server
+        working-directory: ./backend
+        run: npm start &
+        env:
+          PORT: 3000
+          NODE_ENV: test
+      
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
+      
+      - name: Start frontend server
+        working-directory: ./frontend
+        run: npx vite preview --port 5173 &
+      
+      - name: Wait for servers to be ready
+        run: |
+          npx wait-on http://localhost:3000/api/health http://localhost:5173 --timeout 60000
+      
       - name: Install Playwright browsers
         working-directory: ./frontend
         run: npx playwright install --with-deps chromium

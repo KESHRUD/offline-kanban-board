@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
@@ -93,8 +93,23 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
       },
-    }),
+    })
+    ,
   ],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/tests/setup.ts',
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/tests/**', // Exclude tests/ folder (E2E)
+      '**/*.spec.ts', // Exclude .spec.ts (Playwright)
+    ],
+    include: [
+      'src/tests/unit/**/*.test.{ts,tsx}', // Only unit tests
+    ],
+  }, 
   server: {
     port: 5173,
     proxy: {
