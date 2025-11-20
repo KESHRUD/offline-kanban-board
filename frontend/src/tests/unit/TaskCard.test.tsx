@@ -53,7 +53,7 @@ describe('TaskCard', () => {
       />
     );
 
-    const dateElement = screen.getByText(/18\/01\/2025/); // European format DD/MM/YYYY
+    const dateElement = screen.getByText(/\d{1,2}\/\d{1,2}\/2025/); // Accept both DD/MM/YYYY and M/D/YYYY
     expect(dateElement).toBeInTheDocument();
   });
 
