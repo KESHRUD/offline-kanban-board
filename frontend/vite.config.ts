@@ -10,7 +10,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       devOptions: {
-        enabled: true,
+        enabled: false, // Désactive SW en dev pour éviter conflit avec MSW
         type: 'module',
       },
       includeAssets: ['favicon.ico', 'robots.txt', 'icons/*.png'],

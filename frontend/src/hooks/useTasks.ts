@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Task } from '../types';
 import { apiService } from '../services/api';
 import { dbService } from '../services/db';
@@ -10,11 +10,7 @@ export const useTasks = () => {
   const [error, setError] = useState<string | null>(null);
   const isOnline = useOnlineStatus();
 
-  useEffect(() => {
-    loadTasks();
-  }, []);
-
-  const loadTasks = async () => {
+  const loadTasks = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -38,7 +34,11 @@ export const useTasks = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isOnline]);
+
+  useEffect(() => {
+    loadTasks();
+  }, [loadTasks]);
 
   const createTask = async (taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
