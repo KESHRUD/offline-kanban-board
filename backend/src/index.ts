@@ -9,7 +9,7 @@ import boardsRouter from './routes/boards';
 dotenv.config();
 
 const app: Application = express();
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 // Middleware
 app.use(helmet());
@@ -32,7 +32,7 @@ app.use('/api/boards', boardsRouter);
 app.use(errorHandler);
 
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
     console.log(`📋 Environment: ${process.env.NODE_ENV || 'development'}`);
   });
