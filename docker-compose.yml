@@ -1,0 +1,67 @@
+# ============================================================================
+# Docker Compose - Production Configuration
+# Orchestrates frontend and backend services
+# ============================================================================
+
+services:
+  # ==========================================================================
+  # Backend Service - Express API
+  # ==========================================================================
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    container_name: kanban-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - CORS_ORIGIN=http://localhost
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - kanban-network
+
+  # ==========================================================================
+  # Frontend Service - React PWA with Nginx
+  # ==========================================================================
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    container_name: kanban-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    networks:
+      - kanban-network
+
+# ============================================================================
+# Networks
+# ============================================================================
+networks:
+  kanban-network:
+    driver: bridge
+    name: kanban-network
+
+# ============================================================================
+# Volumes (if needed for persistence in the future)
+# ============================================================================
+volumes:
+  kanban-data:
+    name: kanban-data

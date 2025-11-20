@@ -32,22 +32,24 @@ router.get('/', (_req: Request, res: Response) => {
 });
 
 // GET /api/tasks/:id - Get task by ID
-router.get('/:id', (req: Request, res: Response) => {
+router.get('/:id', (req: Request, res: Response): void => {
   const task = tasks.find((t) => t.id === req.params.id);
   
   if (!task) {
-    return res.status(404).json({ error: 'Task not found' });
+    res.status(404).json({ error: 'Task not found' });
+    return;
   }
   
   res.json({ data: task });
 });
 
 // POST /api/tasks - Create new task
-router.post('/', (req: Request, res: Response) => {
+router.post('/', (req: Request, res: Response): void => {
   const dto: CreateTaskDTO = req.body;
   
   if (!dto.title) {
-    return res.status(400).json({ error: 'Title is required' });
+    res.status(400).json({ error: 'Title is required' });
+    return;
   }
   
   const newTask: Task = {
@@ -66,11 +68,12 @@ router.post('/', (req: Request, res: Response) => {
 });
 
 // PUT /api/tasks/:id - Update task
-router.put('/:id', (req: Request, res: Response) => {
+router.put('/:id', (req: Request, res: Response): void => {
   const taskIndex = tasks.findIndex((t) => t.id === req.params.id);
   
   if (taskIndex === -1) {
-    return res.status(404).json({ error: 'Task not found' });
+    res.status(404).json({ error: 'Task not found' });
+    return;
   }
   
   const dto: UpdateTaskDTO = req.body;
@@ -85,11 +88,12 @@ router.put('/:id', (req: Request, res: Response) => {
 });
 
 // DELETE /api/tasks/:id - Delete task
-router.delete('/:id', (req: Request, res: Response) => {
+router.delete('/:id', (req: Request, res: Response): void => {
   const taskIndex = tasks.findIndex((t) => t.id === req.params.id);
   
   if (taskIndex === -1) {
-    return res.status(404).json({ error: 'Task not found' });
+    res.status(404).json({ error: 'Task not found' });
+    return;
   }
   
   tasks.splice(taskIndex, 1);

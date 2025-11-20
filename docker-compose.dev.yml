@@ -1,0 +1,41 @@
+# ============================================================================
+# Docker Compose - Development Override
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+# ============================================================================
+
+services:
+  # ==========================================================================
+  # Backend Service - Development Mode
+  # ==========================================================================
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+      target: builder  # Use builder stage for development
+    volumes:
+      - ./backend/src:/app/src:ro  # Mount source for hot reload
+      - ./backend/package.json:/app/package.json:ro
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - CORS_ORIGIN=http://localhost:5173
+    command: npm run dev  # Use dev script with nodemon
+
+  # ==========================================================================
+  # Frontend Service - Development Mode
+  # ==========================================================================
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+      target: builder  # Use builder stage for development
+    volumes:
+      - ./frontend/src:/app/src:ro  # Mount source for hot reload
+      - ./frontend/index.html:/app/index.html:ro
+      - ./frontend/vite.config.ts:/app/vite.config.ts:ro
+      - ./frontend/package.json:/app/package.json:ro
+    ports:
+      - "5173:5173"  # Vite dev server port
+    environment:
+      - NODE_ENV=development
+    command: npm run dev -- --host 0.0.0.0  # Expose dev server to host

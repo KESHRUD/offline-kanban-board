@@ -20,11 +20,12 @@ router.get('/', (_req: Request, res: Response) => {
 });
 
 // POST /api/boards - Create new board
-router.post('/', (req: Request, res: Response) => {
+router.post('/', (req: Request, res: Response): void => {
   const { name } = req.body;
   
   if (!name) {
-    return res.status(400).json({ error: 'Name is required' });
+    res.status(400).json({ error: 'Name is required' });
+    return;
   }
   
   const newBoard: Board = {
