@@ -135,6 +135,11 @@ test.describe('Offline Task Management', () => {
     await expect(newTaskBtn).toBeEnabled({ timeout: 10000 });
     await newTaskBtn.click();
 
+    // Fill in required task title before clicking 'Create Task'
+    const titleInput = page.locator('#task-title');
+    await expect(titleInput).toBeVisible({ timeout: 10000 });
+    await titleInput.fill('Offline Task');
+
     // Now interact with the modal's 'Create Task' button
     const createBtn = page.locator('button.btn-primary');
     await expect(createBtn).toBeVisible({ timeout: 10000 });
@@ -189,6 +194,11 @@ test.describe('Offline Task Management', () => {
     await expect(newTaskBtn).toBeVisible({ timeout: 10000 });
     await expect(newTaskBtn).toBeEnabled({ timeout: 10000 });
     await newTaskBtn.click();
+
+    // Fill in required task title before clicking 'Create Task'
+    const titleInput = page.locator('#task-title');
+    await expect(titleInput).toBeVisible({ timeout: 10000 });
+    await titleInput.fill('Sync Test Task');
 
     // Now interact with the modal's 'Create Task' button
     const createBtn = page.locator('button.btn-primary');
