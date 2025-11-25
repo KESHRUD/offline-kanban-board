@@ -127,11 +127,13 @@ test.describe('Drag and Drop Functionality', () => {
   test('should handle multiple tasks in same column', async ({ page }) => {
     // Cleanup: delete all tasks in To Do column before test
     const todoColumn = page.locator('.kanban-column').first();
-    const tasksBefore = await todoColumn.locator('.task-card').count();
-    for (let i = 0; i < tasksBefore; i++) {
-      const deleteButton = todoColumn.locator('.task-delete').nth(i);
+    let tasksBefore = await todoColumn.locator('.task-card').count();
+    while (tasksBefore > 0) {
+      // Always delete the first task until none remain
+      const deleteButton = todoColumn.locator('.task-delete').first();
       await deleteButton.click();
       await page.waitForTimeout(200);
+      tasksBefore = await todoColumn.locator('.task-card').count();
     }
 
     // Create multiple tasks

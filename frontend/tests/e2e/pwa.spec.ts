@@ -118,9 +118,11 @@ test.describe('Offline Task Management', () => {
     // Go offline
     await page.context().setOffline(true);
 
-    // Wait for button to be visible before clicking
-    await page.waitForSelector('button.btn-primary', { state: 'visible' });
-    await page.click('button.btn-primary');
+    // Wait for button to be visible and enabled before clicking
+    const createBtn = page.locator('button.btn-primary');
+    await expect(createBtn).toBeVisible({ timeout: 10000 });
+    await expect(createBtn).toBeEnabled({ timeout: 10000 });
+    await createBtn.click();
 
     // Fill in task title in prompt
     page.on('dialog', async (dialog) => {
@@ -148,9 +150,11 @@ test.describe('Offline Task Management', () => {
       await dialog.accept('Sync Test Task');
     });
 
-    // Wait for button to be visible before clicking
-    await page.waitForSelector('button.btn-primary', { state: 'visible' });
-    await page.click('button.btn-primary');
+    // Wait for button to be visible and enabled before clicking
+    const createBtn = page.locator('button.btn-primary');
+    await expect(createBtn).toBeVisible({ timeout: 10000 });
+    await expect(createBtn).toBeEnabled({ timeout: 10000 });
+    await createBtn.click();
     await page.waitForTimeout(1000);
 
     // Go back online
