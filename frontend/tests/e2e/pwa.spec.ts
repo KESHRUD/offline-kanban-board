@@ -118,12 +118,14 @@ test.describe('Offline Task Management', () => {
     // Go offline
     await page.context().setOffline(true);
 
-    // Robustly check for button presence and state before clicking
+    // Open the modal by clicking '+ New Task' button
+    const newTaskBtn = page.locator('button.btn-create');
+    await expect(newTaskBtn).toBeVisible({ timeout: 10000 });
+    await expect(newTaskBtn).toBeEnabled({ timeout: 10000 });
+    await newTaskBtn.click();
+
+    // Now interact with the modal's 'Create Task' button
     const createBtn = page.locator('button.btn-primary');
-    const btnCount = await createBtn.count();
-    if (btnCount === 0) {
-      throw new Error('Create Task button not found in offline mode. Test cannot proceed.');
-    }
     await expect(createBtn).toBeVisible({ timeout: 10000 });
     await expect(createBtn).toBeEnabled({ timeout: 10000 });
     await createBtn.click();
@@ -154,12 +156,14 @@ test.describe('Offline Task Management', () => {
       await dialog.accept('Sync Test Task');
     });
 
-    // Robustly check for button presence and state before clicking
+    // Open the modal by clicking '+ New Task' button
+    const newTaskBtn = page.locator('button.btn-create');
+    await expect(newTaskBtn).toBeVisible({ timeout: 10000 });
+    await expect(newTaskBtn).toBeEnabled({ timeout: 10000 });
+    await newTaskBtn.click();
+
+    // Now interact with the modal's 'Create Task' button
     const createBtn = page.locator('button.btn-primary');
-    const btnCount = await createBtn.count();
-    if (btnCount === 0) {
-      throw new Error('Create Task button not found in offline mode. Test cannot proceed.');
-    }
     await expect(createBtn).toBeVisible({ timeout: 10000 });
     await expect(createBtn).toBeEnabled({ timeout: 10000 });
     await createBtn.click();
