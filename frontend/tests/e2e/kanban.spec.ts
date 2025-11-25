@@ -10,9 +10,10 @@ test.describe('Drag and Drop Functionality', () => {
     const columns = page.locator('.kanban-column');
     await expect(columns).toHaveCount(3);
 
-    await expect(page.locator('text=/To Do/i')).toBeVisible();
-    await expect(page.locator('text=/In Progress/i')).toBeVisible();
-    await expect(page.locator('text=/Done/i')).toBeVisible();
+    // Use more specific locator for column headings
+    await expect(page.getByRole('heading', { name: /To Do/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /In Progress/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Done/i })).toBeVisible();
   });
 
   test('should open create task modal when clicking new task button', async ({ page }) => {
@@ -124,6 +125,15 @@ test.describe('Drag and Drop Functionality', () => {
   });
 
   test('should handle multiple tasks in same column', async ({ page }) => {
+    // Cleanup: delete all tasks in To Do column before test
+    const todoColumn = page.locator('.kanban-column').first();
+    const tasksBefore = await todoColumn.locator('.task-card').count();
+    for (let i = 0; i < tasksBefore; i++) {
+      const deleteButton = todoColumn.locator('.task-delete').nth(i);
+      await deleteButton.click();
+      await page.waitForTimeout(200);
+    }
+
     // Create multiple tasks
     for (let i = 1; i <= 3; i++) {
       await page.click('button.btn-create');
@@ -131,9 +141,8 @@ test.describe('Drag and Drop Functionality', () => {
       await page.click('button.btn-primary:has-text("Create Task")');
       await page.waitForTimeout(300);
     }
-    
+
     // Verify all tasks are visible
-    const todoColumn = page.locator('.kanban-column').first();
     const tasks = todoColumn.locator('.task-card');
     await expect(tasks).toHaveCount(3);
   });

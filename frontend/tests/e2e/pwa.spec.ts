@@ -118,7 +118,8 @@ test.describe('Offline Task Management', () => {
     // Go offline
     await page.context().setOffline(true);
 
-    // Click create task button
+    // Wait for button to be visible before clicking
+    await page.waitForSelector('button.btn-primary', { state: 'visible' });
     await page.click('button.btn-primary');
 
     // Fill in task title in prompt
@@ -142,11 +143,13 @@ test.describe('Offline Task Management', () => {
 
     // Create task while offline
     await page.context().setOffline(true);
-    
+
     page.on('dialog', async (dialog) => {
       await dialog.accept('Sync Test Task');
     });
-    
+
+    // Wait for button to be visible before clicking
+    await page.waitForSelector('button.btn-primary', { state: 'visible' });
     await page.click('button.btn-primary');
     await page.waitForTimeout(1000);
 
