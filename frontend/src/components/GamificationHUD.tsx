@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from './AuthContext';
 import { useTheme } from './ThemeContext';

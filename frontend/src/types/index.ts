@@ -26,12 +26,14 @@ export interface Task {
   subtasks: Subtask[];
   comments: Comment[];
   diagramCode?: string;
+  userId?: string;
 }
 
 export interface Column {
   id: string;
   title: string;
   order: number;
+  userId?: string;
 }
 
 export interface Flashcard {
@@ -52,13 +54,16 @@ export interface Deck {
   subject: string;
   cards: Flashcard[];
   coverUrl?: string;
+  userId?: string;
 }
 
 export interface DailyGoal {
+  id?: string;
   target: number;
   progress: number;
   lastUpdated: number;
   streak: number;
+  userId?: string;
 }
 
 export type ThemeMode = 'pro' | 'galilee';

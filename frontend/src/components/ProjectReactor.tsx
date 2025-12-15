@@ -23,24 +23,22 @@ export const ProjectReactor: React.FC<ProjectReactorProps> = ({ tasks }) => {
   const mountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Copy ref value at effect start to use in cleanup
-    const mountElement = mountRef.current;
-    if (!mountElement) return;
+    if (!mountRef.current) return;
 
     // SCENE SETUP
     const scene = new Scene();
     const camera = new PerspectiveCamera(75, 1, 0.1, 1000);
     const renderer = new WebGLRenderer({ alpha: true, antialias: true });
-
+    
     const size = 180;
     renderer.setSize(size, size);
-    mountElement.appendChild(renderer.domElement);
+    mountRef.current.appendChild(renderer.domElement);
 
     // OBJECTS
     // 1. Core (Octahedron)
     const coreGeometry = new OctahedronGeometry(1.2, 0);
-    const coreMaterial = new MeshBasicMaterial({
-        color: 0x06b6d4,
+    const coreMaterial = new MeshBasicMaterial({ 
+        color: 0x06b6d4, 
         wireframe: true,
         transparent: true,
         opacity: 0.8
@@ -50,8 +48,8 @@ export const ProjectReactor: React.FC<ProjectReactorProps> = ({ tasks }) => {
 
     // 2. Outer Ring (Icosahedron)
     const ringGeometry = new IcosahedronGeometry(2, 0);
-    const ringMaterial = new MeshBasicMaterial({
-        color: 0x3b82f6,
+    const ringMaterial = new MeshBasicMaterial({ 
+        color: 0x3b82f6, 
         wireframe: true,
         transparent: true,
         opacity: 0.3
@@ -83,7 +81,7 @@ export const ProjectReactor: React.FC<ProjectReactorProps> = ({ tasks }) => {
 
       core.rotation.x += 0.01;
       core.rotation.y += 0.02;
-
+      
       ring.rotation.x -= 0.005;
       ring.rotation.y -= 0.005;
 
@@ -98,11 +96,11 @@ export const ProjectReactor: React.FC<ProjectReactorProps> = ({ tasks }) => {
 
     animate();
 
-    // CLEANUP - use mountElement (copied ref value) instead of mountRef.current
+    // CLEANUP
     return () => {
       cancelAnimationFrame(frameId);
-      if (mountElement) {
-        mountElement.removeChild(renderer.domElement);
+      if (mountRef.current) {
+        mountRef.current.removeChild(renderer.domElement);
       }
       geometryDispose(coreGeometry);
       geometryDispose(ringGeometry);
@@ -114,7 +112,7 @@ export const ProjectReactor: React.FC<ProjectReactorProps> = ({ tasks }) => {
     };
   }, []);
 
-  // We can calculate metrics
+  // Calculate metrics
   const totalTasks = tasks.length;
   const doneTasks = tasks.filter(t => t.columnId === 'done').length;
   const progress = totalTasks === 0 ? 0 : doneTasks / totalTasks;
@@ -124,11 +122,11 @@ export const ProjectReactor: React.FC<ProjectReactorProps> = ({ tasks }) => {
       <div ref={mountRef} className="animate-pulse-slow" />
       <div className="absolute bottom-4 flex flex-col items-center">
          <span className="font-tech text-cyan-400 text-xs tracking-widest uppercase bg-slate-900/80 px-2 py-1 border border-cyan-800 rounded">
-             Charge Sys. : {totalTasks} unités
+            Charge Sys. : {totalTasks} unités
          </span>
          <div className="w-16 h-1 bg-slate-800 mt-1 rounded overflow-hidden border border-slate-700">
-             <div
-                className="h-full bg-cyan-500 transition-all duration-500"
+            <div 
+                className="h-full bg-cyan-500 transition-all duration-500" 
                 style={{ width: `${progress * 100}%` }}
             />
          </div>

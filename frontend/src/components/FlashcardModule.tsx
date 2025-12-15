@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { useTheme } from './ThemeContext';
 import { useAuth } from './AuthContext';
@@ -7,19 +5,17 @@ import { db } from '../services/storage';
 import type { Deck, DailyGoal } from '../types';
 import { generateFlashcards } from '../services/geminiService';
 import { audioManager, calculateSimilarity } from '../services/audioService';
-import { fetchWikiSummary } from '../services/wikiService';
 import { generateDeckPDF } from '../services/pdfService';
-import { Plus, Brain, ArrowLeft, RotateCw, Sparkles, Loader2, Trash2, BookOpen, Mic, Volume2, Award, Frown, Smile, Search, Globe, Target, Flame, LayoutGrid, Image as FileText } from 'lucide-react';
-
+import { Plus, Brain, ArrowLeft, RotateCw, Sparkles, Loader2, Trash2, BookOpen, Mic, Volume2, Award, Frown, Smile, Search, Target, Flame, LayoutGrid, FileText } from 'lucide-react';
 
 // Curated Unsplash Images for Engineering Topics
 const ENGINEERING_IMAGES = [
-    'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=600&q=80', // Physics/Math
-    'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80', // Circuits
-    'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80', // Code
-    'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&q=80', // Space/Futuristic
-    'https://images.unsplash.com/photo-1487887235947-a955ef187fcc?auto=format&fit=crop&w=600&q=80', // Architecture/Structure
-    'https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=600&q=80', // Math Formulas
+    'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1487887235947-a955ef187fcc?auto=format&fit=crop&w=600&q=80',
+    'https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=600&q=80',
 ];
 
 const getRandomCover = () => ENGINEERING_IMAGES[Math.floor(Math.random() * ENGINEERING_IMAGES.length)];
@@ -42,11 +38,6 @@ export const FlashcardModule: React.FC = () => {
     const [spokenAnswer, setSpokenAnswer] = useState('');
     const [matchScore, setMatchScore] = useState<number | null>(null);
 
-    // Wiki Data
-    const [wikiInfo, setWikiInfo] = useState<string | null>(null);
-    const [loadingWiki, setLoadingWiki] = useState(false);
-    const [showWiki, setShowWiki] = useState(false);
-
     // Create Mode
     const [showCreate, setShowCreate] = useState(false);
     const [newDeckTitle, setNewDeckTitle] = useState('');
@@ -56,12 +47,6 @@ export const FlashcardModule: React.FC = () => {
         loadDecks();
         loadGoals();
     }, []);
-
-    // Reset card state on change
-    useEffect(() => {
-        setWikiInfo(null);
-        setShowWiki(false);
-    }, [currentCardIndex, activeDeck]);
 
     const loadDecks = async () => {
         const d = await db.getAllDecks();
@@ -77,7 +62,6 @@ export const FlashcardModule: React.FC = () => {
         const newProgress = dailyGoal.progress + 1;
         let newStreak = dailyGoal.streak;
         
-        // If we hit the target exactly, increment streak (and play sound)
         if (newProgress === dailyGoal.target) {
              newStreak += 1;
              audioManager.play('success', theme);
@@ -106,7 +90,7 @@ export const FlashcardModule: React.FC = () => {
             id: `deck-${Date.now()}`,
             title: newDeckTitle,
             subject: 'Général',
-            coverUrl: getRandomCover(), // Auto-assign a cool image
+            coverUrl: getRandomCover(),
             cards: []
         };
         
@@ -118,7 +102,7 @@ export const FlashcardModule: React.FC = () => {
                     id: `fc-${Date.now()}-${i}`,
                     question: c.question,
                     answer: c.answer,
-                    difficulty: 'medium',
+                    difficulty: 'medium' as const,
                     easeFactor: 2.5,
                     streak: 0
                 }));
@@ -152,18 +136,20 @@ export const FlashcardModule: React.FC = () => {
 
     const startListening = () => {
         if ('webkitSpeechRecognition' in window) {
-            const recognition = new window.webkitSpeechRecognition();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const SpeechRecognitionAPI = (window as any).webkitSpeechRecognition;
+            const recognition = new SpeechRecognitionAPI();
             recognition.lang = 'fr-FR';
             recognition.continuous = false;
             recognition.interimResults = false;
 
             recognition.onstart = () => setIsListening(true);
             
-            recognition.onresult = (event: SpeechRecognitionEvent) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            recognition.onresult = (event: any) => {
                 const transcript = event.results[0][0].transcript;
                 setSpokenAnswer(transcript);
                 
-                // Calculate Score
                 const card = activeDeck?.cards[currentCardIndex];
                 if (card) {
                     const score = calculateSimilarity(transcript, card.answer);
@@ -183,33 +169,19 @@ export const FlashcardModule: React.FC = () => {
         }
     };
 
-    const fetchWiki = async (query: string) => {
-        if (showWiki) {
-            setShowWiki(false);
-            return;
-        }
-        setLoadingWiki(true);
-        const info = await fetchWikiSummary(query);
-        setWikiInfo(info || "Aucune information encyclopédique trouvée.");
-        setLoadingWiki(false);
-        setShowWiki(true);
-    };
-
     const handleExportPDF = () => {
         if (activeDeck) {
             generateDeckPDF(activeDeck, user);
         }
     };
 
-    // SRS Logic (Simplified SM-2)
-    const handleGrade = async (_grade: 'fail' | 'hard' | 'good' | 'easy') => {
+    const handleGrade = async () => {
         playSound('click');
         if (!activeDeck) return;
         
-        await updateProgress(); // Increment daily counter
-        updateUserXp(5); // Award 5 XP per card
+        await updateProgress();
+        updateUserXp(5);
 
-        // Visual flow:
         setIsFlipped(false);
         setSpokenAnswer('');
         setMatchScore(null);
@@ -233,7 +205,6 @@ export const FlashcardModule: React.FC = () => {
                      <ArrowLeft size={20} /> {t('back')}
                  </button>
 
-                 {/* Export Button */}
                  <button 
                     onClick={handleExportPDF}
                     className={`absolute top-4 left-36 flex items-center gap-2 px-4 py-2 rounded-lg transition-colors z-20 backdrop-blur-md border border-white/10
@@ -242,7 +213,6 @@ export const FlashcardModule: React.FC = () => {
                      <FileText size={20} /> {t('export_pdf')}
                  </button>
 
-                 {/* Goal Widget Mini (In-Game) */}
                  <div className={`absolute top-4 right-4 flex flex-col items-end gap-1 ${isGalilee ? 'text-cyan-600' : 'text-slate-400'}`}>
                     <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
                          <span>{t('gali_strikes')}: {dailyGoal.progress}/{dailyGoal.target}</span>
@@ -261,7 +231,7 @@ export const FlashcardModule: React.FC = () => {
                  </div>
 
                  {/* 3D FLIP CARD CONTAINER */}
-                 <div className="perspective-1000 w-full max-w-2xl h-80 cursor-pointer group mb-8" onClick={() => { if(!showWiki) { setIsFlipped(!isFlipped); playSound('flip'); } }}>
+                 <div className="perspective-1000 w-full max-w-2xl h-80 cursor-pointer group mb-8" onClick={() => { setIsFlipped(!isFlipped); playSound('flip'); }}>
                      <div className={`relative w-full h-full transition-transform duration-700 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
                          
                          {/* FRONT */}
@@ -276,31 +246,13 @@ export const FlashcardModule: React.FC = () => {
                              </p>
                              
                              <div className="flex gap-4 relative z-20" onClick={(e) => e.stopPropagation()}>
-                                <button onClick={() => speakText(card.question)} className={`p-3 rounded-full transition-colors ${isGalilee ? 'bg-cyan-900/50 text-cyan-400 hover:bg-cyan-800' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+                                <button onClick={() => card && speakText(card.question)} className={`p-3 rounded-full transition-colors ${isGalilee ? 'bg-cyan-900/50 text-cyan-400 hover:bg-cyan-800' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
                                     <Volume2 size={20} />
                                 </button>
                                 <button onClick={startListening} className={`p-3 rounded-full transition-colors ${isListening ? 'bg-red-500 animate-pulse text-white' : (isGalilee ? 'bg-cyan-900/50 text-cyan-400 hover:bg-cyan-800' : 'bg-slate-100 text-slate-600 hover:bg-slate-200')}`}>
                                     <Mic size={20} />
                                 </button>
-                                <button 
-                                    onClick={() => fetchWiki(card.question)}
-                                    className={`p-3 rounded-full transition-colors flex items-center gap-2 ${showWiki ? 'ring-2 ring-offset-2 ring-cyan-500' : ''} ${isGalilee ? 'bg-cyan-900/50 text-cyan-400 hover:bg-cyan-800' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
-                                >
-                                    {loadingWiki ? <Loader2 size={20} className="animate-spin" /> : <Globe size={20} />}
-                                </button>
                              </div>
-
-                             {/* Wiki Overlay */}
-                             {showWiki && (
-                                <div className={`absolute inset-0 z-30 p-6 text-left overflow-y-auto ${isGalilee ? 'bg-slate-900/95 text-cyan-50' : 'bg-white/95 text-slate-800'}`} onClick={(e) => e.stopPropagation()}>
-                                    <div className="flex justify-between items-center mb-4 border-b border-opacity-20 border-current pb-2">
-                                        <h4 className="font-bold flex items-center gap-2"><Globe size={16}/> Encyclopédie</h4>
-                                        <button onClick={() => setShowWiki(false)} className="text-xs hover:underline">Fermer</button>
-                                    </div>
-                                    <p className="text-sm leading-relaxed opacity-90">{wikiInfo}</p>
-                                    <p className="text-[10px] mt-4 opacity-50">Source: Wikipedia API</p>
-                                </div>
-                             )}
 
                              <div className={`absolute bottom-6 right-6 opacity-50 text-xs flex items-center gap-2 ${isGalilee ? 'text-cyan-600' : 'text-slate-400'}`}>
                                  <RotateCw size={14}/> {t('reveal')}
@@ -326,7 +278,7 @@ export const FlashcardModule: React.FC = () => {
                              )}
 
                              <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                                 <button onClick={() => speakText(card.answer)} className={`p-2 rounded-full ${isGalilee ? 'text-cyan-400 hover:bg-cyan-800/30' : 'text-indigo-500 hover:bg-indigo-100'}`}>
+                                 <button onClick={() => card && speakText(card.answer)} className={`p-2 rounded-full ${isGalilee ? 'text-cyan-400 hover:bg-cyan-800/30' : 'text-indigo-500 hover:bg-indigo-100'}`}>
                                     <Volume2 size={18} />
                                  </button>
                              </div>
@@ -337,10 +289,10 @@ export const FlashcardModule: React.FC = () => {
                  {/* SRS CONTROLS */}
                  {isFlipped ? (
                      <div className="flex gap-4 animate-fade-in-up">
-                         <SRSButton label={t('grade_fail')} color="red" icon={<Frown/>} onClick={() => handleGrade('fail')} theme={theme} />
-                         <SRSButton label={t('grade_hard')} color="orange" icon={<Brain/>} onClick={() => handleGrade('hard')} theme={theme} />
-                         <SRSButton label={t('grade_good')} color="blue" icon={<Smile/>} onClick={() => handleGrade('good')} theme={theme} />
-                         <SRSButton label={t('grade_easy')} color="green" icon={<Award/>} onClick={() => handleGrade('easy')} theme={theme} />
+                         <SRSButton label={t('grade_fail')} color="red" icon={<Frown/>} onClick={() => handleGrade()} theme={theme} />
+                         <SRSButton label={t('grade_hard')} color="orange" icon={<Brain/>} onClick={() => handleGrade()} theme={theme} />
+                         <SRSButton label={t('grade_good')} color="blue" icon={<Smile/>} onClick={() => handleGrade()} theme={theme} />
+                         <SRSButton label={t('grade_easy')} color="green" icon={<Award/>} onClick={() => handleGrade()} theme={theme} />
                      </div>
                  ) : (
                      <div className={`text-sm animate-pulse ${isGalilee ? 'text-cyan-600' : 'text-slate-400'}`}>
@@ -363,7 +315,7 @@ export const FlashcardModule: React.FC = () => {
                         {t('neural_training')}
                     </h1>
                     <p className={`${isGalilee ? 'text-cyan-500/80 font-mono' : 'text-slate-500'}`}>
-                        Sélectionnez un module ou générez une simulation via l'IA.
+                        {t('select_module_prompt')}
                     </p>
                 </div>
                 
@@ -399,7 +351,7 @@ export const FlashcardModule: React.FC = () => {
                     {showGoalEdit && (
                         <div className={`absolute top-full right-0 mt-2 p-3 rounded-lg border z-50 flex items-center gap-2 animate-fade-in-up
                             ${isGalilee ? 'bg-slate-900 border-cyan-700 shadow-[0_0_20px_rgba(0,0,0,0.5)] text-white' : 'bg-white border-slate-200 shadow-xl'}`}>
-                            <span className="text-xs whitespace-nowrap">Cible :</span>
+                            <span className="text-xs whitespace-nowrap">{t('target_label')}</span>
                             {[10, 20, 50].map(val => (
                                 <button 
                                     key={val}
@@ -522,7 +474,7 @@ export const FlashcardModule: React.FC = () => {
 
 const SRSButton = ({ label, color, icon, onClick, theme }: { label: string; color: string; icon: React.ReactNode; onClick: () => void; theme: string }) => {
     const isGalilee = theme === 'galilee';
-    const colorClasses = {
+    const colorClasses: Record<string, string> = {
         red: isGalilee ? 'bg-red-900/30 text-red-400 border-red-800 hover:bg-red-800' : 'bg-red-100 text-red-600 hover:bg-red-200',
         orange: isGalilee ? 'bg-orange-900/30 text-orange-400 border-orange-800 hover:bg-orange-800' : 'bg-orange-100 text-orange-600 hover:bg-orange-200',
         blue: isGalilee ? 'bg-blue-900/30 text-blue-400 border-blue-800 hover:bg-blue-800' : 'bg-blue-100 text-blue-600 hover:bg-blue-200',
@@ -532,7 +484,7 @@ const SRSButton = ({ label, color, icon, onClick, theme }: { label: string; colo
     return (
         <button 
             onClick={onClick}
-            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg border transition-all ${colorClasses[color as keyof typeof colorClasses]}`}
+            className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg border transition-all ${colorClasses[color]}`}
         >
             {icon}
             <span className="text-xs font-bold uppercase">{label}</span>

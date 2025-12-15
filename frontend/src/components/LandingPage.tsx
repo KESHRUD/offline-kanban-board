@@ -11,18 +11,19 @@ interface LandingPageProps {
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
   const { theme, toggleTheme, t } = useTheme();
+  const isGalilee = theme === 'galilee';
 
   return (
-    <div className={`min-h-screen w-full relative overflow-hidden text-slate-900 dark:text-white`}>
+    <div className={`min-h-screen w-full relative overflow-hidden ${isGalilee ? 'text-white' : 'text-slate-900'}`}>
       
       {/* 3D Background Layer */}
       <Background3D />
       
       {/* Navigation */}
       <nav className={`fixed top-0 w-full z-50 px-6 py-4 flex justify-between items-center animate-slide-in-right
-        ${theme === 'galilee' ? 'text-cyan-50' : 'text-slate-800'}
+        ${isGalilee ? 'text-cyan-50' : 'text-slate-800'}
       `}>
-        <div className="flex items-center gap-3 backdrop-blur-md bg-white/5 dark:bg-black/20 p-2 rounded-full border border-white/10 px-4">
+        <div className={`flex items-center gap-3 backdrop-blur-md p-2 rounded-full border border-white/10 px-4 ${isGalilee ? 'bg-black/20' : 'bg-white/50'}`}>
             <Logo size="md" animated />
             <span className={`text-xl font-bold tracking-wider ${theme === 'galilee' ? 'font-tech text-cyan-100' : 'font-sans'}`}>
                 GALILÉE <span className={theme === 'galilee' ? 'text-cyan-500' : 'text-indigo-600'}>OS</span>

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { Board } from '../types';
-import { authMiddleware } from '../middleware/auth';
+import { authMiddleware } from '../middleware/AuthContext';
 import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr" class="h-full">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/icons/icon-192x192.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="A Progressive Web App for managing tasks with offline support" />
-    <meta name="theme-color" content="#3B82F6" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="Galilée OS - Progressive Web App for managing tasks and flashcards with offline support" />
+    <meta name="theme-color" content="#06b6d4" />
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />
@@ -13,13 +13,19 @@
     <!-- PWA Support -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Kanban" />
+    <meta name="apple-mobile-web-app-title" content="Galilée OS" />
     <link rel="apple-touch-icon" href="/icons/icon-192x192.svg" />
 
-    <title>Offline Kanban Board</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <title>Galilée OS | Kanban</title>
   </head>
-  <body>
-    <div id="root"></div>
+  <body class="bg-slate-900 text-slate-50 antialiased h-full w-full">
+    <div id="root" class="h-full w-full"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

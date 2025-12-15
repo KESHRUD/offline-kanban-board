@@ -29,7 +29,6 @@ export const Login: React.FC<LoginProps> = ({ onBack }) => {
   const [speciality, setSpeciality] = useState<Speciality>('prepa');
   
   const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,12 +43,6 @@ export const Login: React.FC<LoginProps> = ({ onBack }) => {
     
     setIsLoading(false);
   };
-
-  const handleGoogleLogin = async () => {
-      setIsGoogleLoading(true);
-      await login('google_user', 'google');
-      setIsGoogleLoading(false);
-  }
 
   // GALILÉE THEME LOGIN
   if (theme === 'galilee') {
@@ -114,16 +107,6 @@ export const Login: React.FC<LoginProps> = ({ onBack }) => {
                 )}
 
                 <div className="space-y-4 max-w-md mx-auto">
-                    {!isRegister && (
-                        <button
-                            onClick={handleGoogleLogin}
-                            disabled={isGoogleLoading || isLoading}
-                            className="w-full bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 py-3 font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-3 disabled:opacity-50"
-                        >
-                           <span>{t('login_google')}</span>
-                        </button>
-                    )}
-
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
                             <input
@@ -149,7 +132,7 @@ export const Login: React.FC<LoginProps> = ({ onBack }) => {
 
                         <button
                             type="submit"
-                            disabled={isLoading || isGoogleLoading}
+                            disabled={isLoading}
                             className="w-full bg-cyan-800/50 hover:bg-cyan-700 text-cyan-300 border border-cyan-600 py-3 font-bold uppercase tracking-widest transition-all hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] disabled:opacity-50 flex items-center justify-center gap-2 group-hover:bg-cyan-900"
                         >
                              {isLoading ? (
@@ -213,16 +196,6 @@ export const Login: React.FC<LoginProps> = ({ onBack }) => {
             </div>
         )}
 
-        {!isRegister && (
-            <button
-                onClick={handleGoogleLogin}
-                disabled={isGoogleLoading || isLoading}
-                className="w-full mb-4 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-3 shadow-sm"
-            >
-                <span>{t('login_google')}</span>
-            </button>
-        )}
-
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
             <div>
                 <input
@@ -246,7 +219,7 @@ export const Login: React.FC<LoginProps> = ({ onBack }) => {
             )}
             <button
                 type="submit"
-                disabled={isLoading || isGoogleLoading}
+                disabled={isLoading}
                 className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-70 shadow-lg shadow-indigo-200"
             >
                 {isLoading ? t('loading') : (isRegister ? t('register_init') : t('login_init'))}

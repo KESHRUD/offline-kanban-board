@@ -51,8 +51,7 @@ export const useTasks = () => {
         const tempTask: Task = {
           id: `temp-${Date.now()}`,
           ...taskData,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          createdAt: Date.now(),
         };
         setTasks((prev) => [...prev, tempTask]);
         await dbService.saveTask(tempTask);
@@ -70,10 +69,9 @@ export const useTasks = () => {
         setTasks((prev) => prev.map((t) => (t.id === id ? updatedTask : t)));
         await dbService.saveTask(updatedTask);
       } else {
-        const updatedTask = {
+        const updatedTask: Task = {
           ...tasks.find((t) => t.id === id)!,
           ...updates,
-          updatedAt: new Date().toISOString(),
         };
         setTasks((prev) => prev.map((t) => (t.id === id ? updatedTask : t)));
         await dbService.saveTask(updatedTask);

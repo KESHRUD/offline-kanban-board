@@ -1,19 +1,42 @@
-
 import type { Deck, User } from '../types';
 
 declare global {
   interface Window {
-    jspdf: { jsPDF: new () => unknown } | undefined;
+    jspdf: {
+      jsPDF: new () => PDFDoc;
+    };
   }
+}
+
+interface PDFDoc {
+  setFillColor: (color: string) => void;
+  rect: (x: number, y: number, w: number, h: number, style: string) => void;
+  setTextColor: (color: string) => void;
+  setFontSize: (size: number) => void;
+  setFont: (font: string, style: string) => void;
+  text: (text: string | string[], x: number, y: number) => void;
+  setDrawColor: (color: string) => void;
+  setLineWidth: (width: number) => void;
+  line: (x1: number, y1: number, x2: number, y2: number) => void;
+  addPage: () => void;
+  splitTextToSize: (text: string, maxWidth: number) => string[];
+  getNumberOfPages: () => number;
+  setPage: (page: number) => void;
+  save: (filename: string) => void;
 }
 
 export const generateDeckPDF = (deck: Deck, user: User | null) => {
   if (!window.jspdf) {
-    alert("Module d'export PDF non chargé.");
+    alert("Module d'export PDF non chargé. Ajoutez jsPDF à votre projet.");
     return;
   }
 
   const { jsPDF } = window.jspdf;
+  if (!jsPDF) {
+      alert("Erreur d'initialisation PDF.");
+      return;
+  }
+  
   const doc = new jsPDF();
 
   // Branding Colors
@@ -60,13 +83,16 @@ export const generateDeckPDF = (deck: Deck, user: User | null) => {
     }
 
     // Question Box
-    doc.setFillColor(240, 248, 255); // AliceBlue
+    doc.setFillColor('#f0f8ff'); // AliceBlue
     doc.rect(20, y, 170, 15, 'F');
     
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.setTextColor(secondaryColor);
-    doc.text(`Q${index + 1}: ${card.question}`, 25, y + 10);
+    
+    // Sanitize text to avoid PDF errors with unsupported chars
+    const safeQuestion = card.question.replace(/[^\x00-\xFF]/g, " "); 
+    doc.text(`Q${index + 1}: ${safeQuestion}`, 25, y + 10);
     
     y += 20;
 
@@ -76,7 +102,8 @@ export const generateDeckPDF = (deck: Deck, user: User | null) => {
     doc.setTextColor('#333333');
     
     // Wrap text
-    const splitAnswer = doc.splitTextToSize(card.answer, 160);
+    const safeAnswer = card.answer.replace(/[^\x00-\xFF]/g, " ");
+    const splitAnswer = doc.splitTextToSize(safeAnswer, 160);
     doc.text(splitAnswer, 25, y);
     
     y += (splitAnswer.length * 7) + 10;
@@ -87,9 +114,10 @@ export const generateDeckPDF = (deck: Deck, user: User | null) => {
   for(let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(8);
-    doc.setTextColor('#aaaaaa');
-    doc.text(`Sup Galilée Engineering School - Page ${i}/${pageCount}`, 105, 290, { align: 'center' });
+    doc.setTextColor('#999999');
+    doc.text(`Page ${i} / ${pageCount} - Généré par Galilée OS`, 105, 290);
   }
 
-  doc.save(`Galilee_Revision_${deck.title.replace(/\s+/g, '_')}.pdf`);
+  // Save
+  doc.save(`${deck.title.replace(/\s+/g, '_')}_flashcards.pdf`);
 };

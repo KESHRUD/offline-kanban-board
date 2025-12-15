@@ -1,16 +1,10 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Task, Priority, Subtask, Comment } from '../types';
 import { useTheme } from './ThemeContext';
 
-import { X, Loader2, Bot, Plus, Calendar, CheckCircle, Circle, FileCode, Edit3, Image } from 'lucide-react';
-import { enhanceTaskDescription, generateDiagramCode } from '../services/geminiService';
-
-declare global {
-  interface Window {
-    mermaid: unknown;
-  }
-}
+import { X, Loader2, Bot, Plus, Calendar, CheckCircle, Circle } from 'lucide-react';
+import { enhanceTaskDescription } from '../services/geminiService';
 
 interface EditModalProps {
   isOpen: boolean;
@@ -23,8 +17,6 @@ interface EditModalProps {
 export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, onSave, initialTask, columnId }) => {
   const { theme, t } = useTheme();
   
-  const [activeTab, setActiveTab] = useState<'config' | 'blueprint'>('config');
-
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<Priority>('medium');
@@ -33,13 +25,9 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, onSave, i
   
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
-  const [diagramCode, setDiagramCode] = useState('');
   
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [isEnhancing, setIsEnhancing] = useState(false);
-  const [isGeneratingDiagram, setIsGeneratingDiagram] = useState(false);
-  
-  const mermaidRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -51,7 +39,6 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, onSave, i
             setDueDate(initialTask.dueDate ? new Date(initialTask.dueDate).toISOString().split('T')[0] : '');
             setSubtasks(initialTask.subtasks || []);
             setComments(initialTask.comments || []);
-            setDiagramCode(initialTask.diagramCode || '');
         } else {
             setTitle('');
             setDescription('');
@@ -60,24 +47,9 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, onSave, i
             setDueDate('');
             setSubtasks([]);
             setComments([]);
-            setDiagramCode('');
         }
-        setActiveTab('config');
     }
   }, [isOpen, initialTask]);
-
-  useEffect(() => {
-      if (activeTab === 'blueprint' && diagramCode && window.mermaid && mermaidRef.current) {
-          window.mermaid.initialize({ startOnLoad: true, theme: theme === 'galilee' ? 'dark' : 'default' });
-          try {
-              mermaidRef.current.innerHTML = `<div class="mermaid">${diagramCode}</div>`;
-              window.mermaid.run({ nodes: [mermaidRef.current.querySelector('.mermaid')] });
-          } catch {
-              console.error("Mermaid Render Error", e);
-              mermaidRef.current.innerHTML = "Diagram Syntax Error";
-          }
-      }
-  }, [activeTab, diagramCode, theme]);
 
   const handleEnhance = async () => {
     if (!title) return;
@@ -106,19 +78,6 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, onSave, i
     }
   };
 
-  const handleGenerateBlueprint = async () => {
-      if (!description) return;
-      setIsGeneratingDiagram(true);
-      try {
-          const code = await generateDiagramCode(description);
-          setDiagramCode(code);
-      } catch {
-          alert("Error generating diagram");
-      } finally {
-          setIsGeneratingDiagram(false);
-      }
-  }
-
   const handleSave = () => {
     onSave({
         id: initialTask?.id,
@@ -129,8 +88,7 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, onSave, i
         columnId: initialTask?.columnId || columnId,
         dueDate: dueDate ? new Date(dueDate).getTime() : undefined,
         subtasks,
-        comments,
-        diagramCode
+        comments
     });
     onClose();
   };
@@ -170,25 +128,9 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, onSave, i
         
         {/* Header */}
         <div className={`flex justify-between items-center p-6 border-b ${isGalilee ? 'border-cyan-900' : 'border-slate-100'}`}>
-            <div className="flex items-center gap-4">
-                <h2 className={`${isGalilee ? 'font-tech text-2xl font-bold text-cyan-400 uppercase tracking-widest' : 'text-xl font-bold'}`}>
-                    {initialTask ? t('config_module') : t('new_protocol')}
-                </h2>
-                <div className={`flex rounded-lg p-1 ${isGalilee ? 'bg-slate-950 border border-cyan-900' : 'bg-slate-100'}`}>
-                    <button 
-                        onClick={() => setActiveTab('config')}
-                        className={`px-3 py-1 rounded text-xs font-bold transition-all ${activeTab === 'config' ? (isGalilee ? 'bg-cyan-900 text-cyan-400' : 'bg-white shadow') : 'opacity-50'}`}
-                    >
-                        <Edit3 size={14} className="inline mr-1"/> Config
-                    </button>
-                    <button 
-                        onClick={() => setActiveTab('blueprint')}
-                        className={`px-3 py-1 rounded text-xs font-bold transition-all ${activeTab === 'blueprint' ? (isGalilee ? 'bg-cyan-900 text-cyan-400' : 'bg-white shadow') : 'opacity-50'}`}
-                    >
-                        <FileCode size={14} className="inline mr-1"/> {t('blueprint_tab')}
-                    </button>
-                </div>
-            </div>
+            <h2 className={`${isGalilee ? 'font-tech text-2xl font-bold text-cyan-400 uppercase tracking-widest' : 'text-xl font-bold'}`}>
+                {initialTask ? t('config_module') : t('new_protocol')}
+            </h2>
             <button onClick={onClose} className={`${isGalilee ? 'text-slate-500 hover:text-red-400' : 'text-slate-400 hover:text-slate-600'}`}>
                 <X size={24} />
             </button>
@@ -197,8 +139,7 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, onSave, i
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
             
-            {activeTab === 'config' ? (
-                <>
+            <>
                 {/* Top Row: Title & Enhance */}
                 <div className="flex gap-4 items-start">
                     <div className="flex-1">
@@ -311,50 +252,6 @@ export const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, onSave, i
                     </div>
                 </div>
                 </>
-            ) : (
-                /* BLUEPRINT TAB */
-                <div className="h-full flex flex-col">
-                    <div className="flex justify-between items-center mb-4">
-                        <p className={`text-xs ${isGalilee ? 'text-cyan-600' : 'text-slate-500'}`}>
-                            {t('blueprint_desc')} (Powered by MermaidJS)
-                        </p>
-                        <button 
-                             type="button"
-                             onClick={handleGenerateBlueprint}
-                             disabled={isGeneratingDiagram}
-                             className={`px-4 py-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider rounded-lg
-                                ${isGalilee 
-                                    ? 'bg-cyan-900/30 text-cyan-400 border border-cyan-700 hover:bg-cyan-800/50' 
-                                    : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'}`}
-                        >
-                             {isGeneratingDiagram ? <Loader2 className="animate-spin" size={14}/> : <Image size={14}/>}
-                             {t('generate_blueprint')}
-                        </button>
-                    </div>
-                    
-                    <div className={`flex-1 min-h-[300px] border rounded-xl overflow-hidden relative p-4
-                         ${isGalilee ? 'bg-slate-900 border-cyan-900' : 'bg-slate-50 border-slate-200'}`}>
-                         
-                         {diagramCode ? (
-                             <div ref={mermaidRef} className="w-full h-full overflow-auto flex items-center justify-center">
-                                 {/* Mermaid renders here */}
-                             </div>
-                         ) : (
-                             <div className="absolute inset-0 flex flex-col items-center justify-center opacity-30">
-                                 <FileCode size={48} className="mb-2"/>
-                                 <p className="text-sm font-mono">No Blueprint Data</p>
-                             </div>
-                         )}
-                    </div>
-                    
-                    <textarea 
-                         value={diagramCode}
-                         onChange={(e) => setDiagramCode(e.target.value)}
-                         className={`mt-4 w-full h-24 p-2 font-mono text-xs opacity-50 focus:opacity-100 transition-opacity ${inputBaseClass}`}
-                         placeholder="MermaidJS Code..."
-                    />
-                </div>
-            )}
         </div>
 
         {/* Footer Actions */}

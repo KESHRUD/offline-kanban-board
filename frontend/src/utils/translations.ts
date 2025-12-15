@@ -33,6 +33,10 @@ const fr: Dictionary = {
   "switch_to_register": "Pas de compte ? Créer un accès",
   "switch_to_login": "Déjà un compte ? Se connecter",
   "select_speciality": "Sélectionnez votre Spécialité",
+  "secure_terminal": "ACCÈS TERMINAL SÉCURISÉ V.3.1.0",
+  "engineering_protocol": "PROTOCOLE INGÉNIERIE SUP GALILÉE",
+  "enter_id": "VEUILLEZ ENTRER VOS IDENTIFIANTS INGÉNIEUR",
+  "create_id": "CRÉATION NOUVEAU MATRICULE",
 
   // Specialities
   "spec_info": "Informatique",
@@ -70,6 +74,7 @@ const fr: Dictionary = {
   // Flashcards
   "gali_strikes": "Gali Strikes",
   "neural_training": "Entraînement Neuronal",
+  "select_module_prompt": "Sélectionnez un module ou générez une simulation via l'IA.",
   "new_deck": "Nouveau Deck",
   "create_deck": "Créer le Deck",
   "deck_config": "Configuration du Deck",
@@ -86,6 +91,8 @@ const fr: Dictionary = {
   "voice_feedback": "Votre réponse",
   "precision": "Précision",
   "export_pdf": "Exporter PDF",
+  "target_label": "Cible :",
+  "add_subtask_placeholder": "Ajouter étape...",
   
   // Timer
   "hyperfocus": "Mode Hyperfocus",
@@ -136,6 +143,10 @@ const en: Dictionary = {
   "switch_to_register": "No account? Create access",
   "switch_to_login": "Already have an account? Login",
   "select_speciality": "Select your Major",
+  "secure_terminal": "SECURE TERMINAL ACCESS V.3.1.0",
+  "engineering_protocol": "SUP GALILÉE ENGINEERING PROTOCOL",
+  "enter_id": "PLEASE ENTER ENGINEERING CREDENTIALS",
+  "create_id": "NEW MATRICULATION CREATION",
 
   // Specialities
   "spec_info": "Computer Science",
@@ -173,6 +184,7 @@ const en: Dictionary = {
   // Flashcards
   "gali_strikes": "Gali Strikes",
   "neural_training": "Neural Training",
+  "select_module_prompt": "Select a module or generate an AI simulation.",
   "new_deck": "New Deck",
   "create_deck": "Create Deck",
   "deck_config": "Deck Configuration",
@@ -189,6 +201,8 @@ const en: Dictionary = {
   "voice_feedback": "Your answer",
   "precision": "Accuracy",
   "export_pdf": "Export PDF",
+  "target_label": "Target:",
+  "add_subtask_placeholder": "Add step...",
 
   // Timer
   "hyperfocus": "Hyperfocus Mode",

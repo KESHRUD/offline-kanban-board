@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from './ThemeContext';
 import { Search, Sun, Moon, VolumeX, Plus } from 'lucide-react';
@@ -55,7 +54,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ onNewTask, onNew
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, filteredCommands, selectedIndex, theme]);
+  }, [isOpen, filteredCommands, selectedIndex, theme, toggleTheme]);
 
   useEffect(() => {
     if (isOpen && inputRef.current) {

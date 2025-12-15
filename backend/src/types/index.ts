@@ -21,6 +21,24 @@ export interface Column {
   order: number;
 }
 
+export type Speciality = 'info' | 'energy' | 'telecom' | 'instrumentation' | 'macs' | 'prepa';
+
+export interface User {
+  id?: string;
+  username: string;
+  email?: string;
+  name: string;
+  role: 'student' | 'engineer' | 'admin';
+  avatarUrl?: string;
+  provider?: 'google' | 'local';
+  speciality?: Speciality;
+  xp: number;
+  level: number;
+  rank: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface CreateTaskDTO {
   title: string;
   description?: string;

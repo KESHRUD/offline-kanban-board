@@ -1,4 +1,3 @@
-
 import type { ThemeMode } from '../types';
 
 class AudioService {
@@ -87,6 +86,15 @@ class AudioService {
            osc.start(t);
            osc.stop(t + 0.2);
            break;
+        case 'error':
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(150, t);
+          osc.frequency.exponentialRampToValueAtTime(50, t + 0.15);
+          gain.gain.setValueAtTime(0.1, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+          osc.start(t);
+          osc.stop(t + 0.15);
+          break;
       }
     } else {
       // PRO SOUNDS (Subtle)
@@ -180,7 +188,7 @@ export const calculateSimilarity = (s1: string, s2: string): number => {
     str1 = str1.toLowerCase().replace(/[^a-z0-9]/g, '');
     str2 = str2.toLowerCase().replace(/[^a-z0-9]/g, '');
     
-    const costs = [];
+    const costs: number[] = [];
     for (let i = 0; i <= str1.length; i++) {
       let lastValue = i;
       for (let j = 0; j <= str2.length; j++) {

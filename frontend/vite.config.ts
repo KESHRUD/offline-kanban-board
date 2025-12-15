@@ -10,7 +10,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       devOptions: {
-        enabled: false, // Désactive SW en dev pour éviter conflit avec MSW
+        enabled: false,
         type: 'module',
       },
       includeAssets: ['favicon.ico', 'robots.txt', 'icons/*.png'],
@@ -53,7 +53,7 @@ export default defineConfig({
               networkTimeoutSeconds: 3,
               expiration: {
                 maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
+                maxAgeSeconds: 60 * 60 * 24 * 7,
               },
               cacheableResponse: {
                 statuses: [0, 200],
@@ -61,7 +61,7 @@ export default defineConfig({
               backgroundSync: {
                 name: 'api-queue',
                 options: {
-                  maxRetentionTime: 24 * 60, // Retry for 24 hours
+                  maxRetentionTime: 24 * 60,
                 },
               },
             },
@@ -73,7 +73,7 @@ export default defineConfig({
               cacheName: 'images-cache',
               expiration: {
                 maxEntries: 60,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                maxAgeSeconds: 60 * 60 * 24 * 30,
               },
             },
           },
@@ -84,7 +84,7 @@ export default defineConfig({
               cacheName: 'fonts-cache',
               expiration: {
                 maxEntries: 30,
-                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+                maxAgeSeconds: 60 * 60 * 24 * 365,
               },
             },
           },
@@ -93,8 +93,7 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
       },
-    })
-    ,
+    }),
   ],
   test: {
     globals: true,
@@ -103,15 +102,21 @@ export default defineConfig({
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
-      '**/tests/**', // Exclude tests/ folder (E2E)
-      '**/*.spec.ts', // Exclude .spec.ts (Playwright)
+      '**/tests/**',
+      '**/*.spec.ts',
     ],
     include: [
-      'src/tests/**/*.test.{ts,tsx}', // Only unit tests
+      'src/tests/**/*.test.{ts,tsx}',
     ],
-  }, 
+  },
   server: {
     port: 5173,
+    host: true,
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+      port: 5173,
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:3000',

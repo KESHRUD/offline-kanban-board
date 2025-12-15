@@ -1,11 +1,21 @@
 import type { Task, Column, Deck, DailyGoal } from '../types';
 
 const DB_NAME = 'GalileeOS_DB';
-const DB_VERSION = 5; 
+const DB_VERSION = 6; // Bumped version for userId support
 const STORE_TASKS = 'tasks';
 const STORE_COLUMNS = 'columns';
 const STORE_DECKS = 'decks';
 const STORE_GOALS = 'goals';
+
+// Get current user ID from localStorage
+const getCurrentUserId = (): string => {
+  const stored = localStorage.getItem('sup_galilee_auth_user');
+  if (stored) {
+    const user = JSON.parse(stored);
+    return user.username || 'default';
+  }
+  return 'default';
+};
 
 export class StorageService {
   private dbPromise: Promise<IDBDatabase>;
@@ -19,17 +29,23 @@ export class StorageService {
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
+        
+        // Create stores with index on userId for filtering
         if (!db.objectStoreNames.contains(STORE_TASKS)) {
-          db.createObjectStore(STORE_TASKS, { keyPath: 'id' });
+          const taskStore = db.createObjectStore(STORE_TASKS, { keyPath: 'id' });
+          taskStore.createIndex('userId', 'userId', { unique: false });
         }
         if (!db.objectStoreNames.contains(STORE_COLUMNS)) {
-          db.createObjectStore(STORE_COLUMNS, { keyPath: 'id' });
+          const columnStore = db.createObjectStore(STORE_COLUMNS, { keyPath: 'id' });
+          columnStore.createIndex('userId', 'userId', { unique: false });
         }
         if (!db.objectStoreNames.contains(STORE_DECKS)) {
-          db.createObjectStore(STORE_DECKS, { keyPath: 'id' });
+          const deckStore = db.createObjectStore(STORE_DECKS, { keyPath: 'id' });
+          deckStore.createIndex('userId', 'userId', { unique: false });
         }
         if (!db.objectStoreNames.contains(STORE_GOALS)) {
-          db.createObjectStore(STORE_GOALS, { keyPath: 'id' });
+          const goalStore = db.createObjectStore(STORE_GOALS, { keyPath: 'id' });
+          goalStore.createIndex('userId', 'userId', { unique: false });
         }
       };
     });
@@ -39,21 +55,34 @@ export class StorageService {
 
   async getAllTasks(): Promise<Task[]> {
     const db = await this.dbPromise;
+    const userId = getCurrentUserId();
+    
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(STORE_TASKS, 'readonly');
       const store = transaction.objectStore(STORE_TASKS);
       const request = store.getAll();
-      request.onsuccess = () => resolve(request.result || []);
+      
+      request.onsuccess = () => {
+        const allTasks = request.result || [];
+        // Filter by current user (or show tasks without userId for backward compatibility)
+        const userTasks = allTasks.filter(t => !t.userId || t.userId === userId);
+        resolve(userTasks);
+      };
       request.onerror = () => reject(request.error);
     });
   }
 
   async saveTask(task: Task): Promise<void> {
     const db = await this.dbPromise;
+    const userId = getCurrentUserId();
+    
+    // Add userId to task if not present
+    const taskWithUser = { ...task, userId: task.userId || userId };
+    
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(STORE_TASKS, 'readwrite');
       const store = transaction.objectStore(STORE_TASKS);
-      const request = store.put(task);
+      const request = store.put(taskWithUser);
       request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
     });
@@ -74,13 +103,17 @@ export class StorageService {
 
   async getAllColumns(): Promise<Column[]> {
     const db = await this.dbPromise;
+    const userId = getCurrentUserId();
+    
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(STORE_COLUMNS, 'readonly');
       const store = transaction.objectStore(STORE_COLUMNS);
       const request = store.getAll();
       request.onsuccess = () => {
-        const cols = request.result || [];
-        resolve(cols.sort((a, b) => a.order - b.order));
+        const allCols = request.result || [];
+        // Filter by current user
+        const userCols = allCols.filter((c: Column & { userId?: string }) => !c.userId || c.userId === userId);
+        resolve(userCols.sort((a, b) => a.order - b.order));
       };
       request.onerror = () => reject(request.error);
     });
@@ -88,10 +121,15 @@ export class StorageService {
 
   async saveColumn(column: Column): Promise<void> {
     const db = await this.dbPromise;
+    const userId = getCurrentUserId();
+    
+    // Add userId to column
+    const columnWithUser = { ...column, userId };
+    
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(STORE_COLUMNS, 'readwrite');
       const store = transaction.objectStore(STORE_COLUMNS);
-      const request = store.put(column);
+      const request = store.put(columnWithUser);
       request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
     });
@@ -112,12 +150,19 @@ export class StorageService {
 
   async getAllDecks(): Promise<Deck[]> {
     const db = await this.dbPromise;
+    const userId = getCurrentUserId();
+    
     return new Promise((resolve, reject) => {
       try {
         const transaction = db.transaction(STORE_DECKS, 'readonly');
         const store = transaction.objectStore(STORE_DECKS);
         const request = store.getAll();
-        request.onsuccess = () => resolve(request.result || []);
+        request.onsuccess = () => {
+          const allDecks = request.result || [];
+          // Filter by current user
+          const userDecks = allDecks.filter((d: Deck & { userId?: string }) => !d.userId || d.userId === userId);
+          resolve(userDecks);
+        };
         request.onerror = () => reject(request.error);
       } catch {
         resolve([]); // Store might not exist yet on upgrade
@@ -127,10 +172,15 @@ export class StorageService {
 
   async saveDeck(deck: Deck): Promise<void> {
     const db = await this.dbPromise;
+    const userId = getCurrentUserId();
+    
+    // Add userId to deck
+    const deckWithUser = { ...deck, userId };
+    
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(STORE_DECKS, 'readwrite');
       const store = transaction.objectStore(STORE_DECKS);
-      const request = store.put(deck);
+      const request = store.put(deckWithUser);
       request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
     });
@@ -151,18 +201,21 @@ export class StorageService {
 
   async getDailyGoal(): Promise<DailyGoal> {
     const db = await this.dbPromise;
+    const userId = getCurrentUserId();
+    const goalId = `daily_goal_${userId}`;
+    
     return new Promise((resolve, reject) => {
       try {
         const transaction = db.transaction(STORE_GOALS, 'readonly');
         const store = transaction.objectStore(STORE_GOALS);
-        const request = store.get('daily_goal');
+        const request = store.get(goalId);
         
         request.onsuccess = () => {
           const today = new Date().setHours(0,0,0,0);
           const result = request.result as DailyGoal;
           
           if (!result) {
-            resolve({ id: 'daily_goal', target: 20, progress: 0, lastUpdated: today, streak: 0 } as DailyGoal);
+            resolve({ id: goalId, target: 20, progress: 0, lastUpdated: today, streak: 0, userId } as DailyGoal & { userId: string });
           } else if (result.lastUpdated < today) {
             const oneDay = 24 * 60 * 60 * 1000;
             const isConsecutive = (today - result.lastUpdated) <= oneDay;
@@ -181,10 +234,13 @@ export class StorageService {
 
   async saveDailyGoal(goal: DailyGoal): Promise<void> {
     const db = await this.dbPromise;
+    const userId = getCurrentUserId();
+    const goalId = `daily_goal_${userId}`;
+    
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(STORE_GOALS, 'readwrite');
       const store = transaction.objectStore(STORE_GOALS);
-      const request = store.put({ ...goal, id: 'daily_goal' });
+      const request = store.put({ ...goal, id: goalId, userId });
       request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
     });
@@ -193,20 +249,25 @@ export class StorageService {
   // --- SEEDING ---
 
   async seedIfNeeded(): Promise<void> {
+    const userId = getCurrentUserId();
+    
     const columns = await this.getAllColumns();
     if (columns.length === 0) {
-        await this.saveColumn({ id: 'todo', title: 'À Faire', order: 0 });
-        await this.saveColumn({ id: 'inprogress', title: 'En Cours', order: 1 });
-        await this.saveColumn({ id: 'done', title: 'Validé', order: 2 });
+        // Create unique column IDs per user
+        await this.saveColumn({ id: `${userId}_todo`, title: 'À Faire', order: 0 });
+        await this.saveColumn({ id: `${userId}_inprogress`, title: 'En Cours', order: 1 });
+        await this.saveColumn({ id: `${userId}_done`, title: 'Validé', order: 2 });
     }
 
     const tasks = await this.getAllTasks();
     if (tasks.length === 0) {
+      const cols = await this.getAllColumns();
+      const todoColumnId = cols.find(c => c.title === 'À Faire')?.id || `${userId}_todo`;
       await this.saveTask({
-        id: 't-1',
+        id: `${userId}_t-1`,
         title: 'Révisions Partiels S2',
         description: 'Préparer les fiches de révision pour la Thermodynamique et le Traitement du Signal.',
-        columnId: 'todo',
+        columnId: todoColumnId,
         tags: ['examens', 'urgent'],
         priority: 'high',
         createdAt: Date.now(),
@@ -221,7 +282,7 @@ export class StorageService {
     const decks = await this.getAllDecks();
     if (decks.length === 0) {
         await this.saveDeck({
-            id: 'deck-1',
+            id: `${userId}_deck-1`,
             title: 'Thermodynamique',
             subject: 'Physique',
             coverUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=600&q=80',
