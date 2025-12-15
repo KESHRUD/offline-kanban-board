@@ -1,11 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" rx="64" fill="#3B82F6"/>
-  <rect x="64" y="100" width="100" height="312" rx="20" fill="#BFDBFE"/>
-  <rect x="206" y="100" width="100" height="312" rx="20" fill="#93C5FD"/>
-  <rect x="348" y="100" width="100" height="312" rx="20" fill="#60A5FA"/>
-  <rect x="84" y="132" width="60" height="52" rx="10" fill="#1E40AF"/>
-  <rect x="84" y="204" width="60" height="72" rx="10" fill="#1E40AF"/>
-  <rect x="226" y="132" width="60" height="84" rx="10" fill="#1E40AF"/>
-  <rect x="226" y="236" width="60" height="52" rx="10" fill="#1E40AF"/>
-  <rect x="368" y="132" width="60" height="60" rx="10" fill="#1E40AF"/>
+  <!-- Background -->
+  <rect width="512" height="512" fill="#0f172a"/>
+  
+  <!-- Outer hexagon with nodes -->
+  <polygon points="256,40 436,145 436,355 256,460 76,355 76,145" 
+           fill="none" stroke="#22d3ee" stroke-width="12"/>
+  
+  <!-- Corner nodes -->
+  <circle cx="256" cy="40" r="16" fill="#22d3ee"/>
+  <circle cx="436" cy="145" r="16" fill="#22d3ee"/>
+  <circle cx="436" cy="355" r="16" fill="#22d3ee"/>
+  <circle cx="256" cy="460" r="16" fill="#22d3ee"/>
+  <circle cx="76" cy="355" r="16" fill="#22d3ee"/>
+  <circle cx="76" cy="145" r="16" fill="#22d3ee"/>
+  
+  <!-- Inner hexagon -->
+  <polygon points="256,100 380,175 380,325 256,400 132,325 132,175" 
+           fill="#1e3a5f" stroke="#22d3ee" stroke-width="8"/>
+  
+  <!-- Plus sign -->
+  <rect x="232" y="180" width="48" height="130" rx="8" fill="#22d3ee"/>
+  <rect x="191" y="221" width="130" height="48" rx="8" fill="#22d3ee"/>
 </svg>

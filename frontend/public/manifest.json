@@ -1,11 +1,11 @@
 {
-  "name": "Offline Kanban Board",
-  "short_name": "Kanban",
-  "description": "A Progressive Web App for managing tasks with offline support",
+  "name": "Galilée OS",
+  "short_name": "Galilée",
+  "description": "Progressive Web App for managing tasks and flashcards with offline support",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
-  "theme_color": "#0891b2",
+  "theme_color": "#22d3ee",
   "orientation": "any",
   "icons": [
     {
