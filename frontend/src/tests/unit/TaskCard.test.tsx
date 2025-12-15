@@ -4,13 +4,12 @@ import '@testing-library/jest-dom';
 import { TaskCard } from '../../components/TaskCard';
 import type { Task } from '../../types';
 
-// Mock the theme context to return "pro" theme (which shows priority text)
-vi.mock('../../components/ThemeContext', () => ({
+// Mock the theme hook to return "pro" theme (which shows priority text)
+vi.mock('../../hooks/useTheme', () => ({
   useTheme: () => ({
     theme: 'pro',
     t: (key: string) => key,
   }),
-  ThemeProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 describe('TaskCard', () => {

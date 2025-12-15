@@ -3,8 +3,8 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { TaskCard } from "../../components/TaskCard";
 import type { Task } from "../../types";
 
-// Mock the theme context to return "pro" theme
-vi.mock("../../components/ThemeContext", () => ({
+// Mock the theme hook to return "pro" theme
+vi.mock("../../hooks/useTheme", () => ({
   useTheme: () => ({
     theme: "pro",
     t: (key: string) => key,
