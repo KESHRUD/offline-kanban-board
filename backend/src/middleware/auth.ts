@@ -2,17 +2,16 @@ import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../utils/auth';
 import { User } from '../models/User';
 
-// Extend Express Request type using module augmentation
-export interface AuthenticatedUser {
-  userId: string;
-  email: string;
-  name: string;
-}
-
-// Augment the Express Request interface
-declare module 'express-serve-static-core' {
-  interface Request {
-    user?: AuthenticatedUser;
+// Extend Express Request type to include user
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        userId: string;
+        email: string;
+        name: string;
+      };
+    }
   }
 }
 
@@ -25,7 +24,7 @@ export const authMiddleware = async (
   try {
     // Get token from header
     const authHeader = req.headers.authorization;
-
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       res.status(401).json({ error: 'No token provided' });
       return;
@@ -35,7 +34,7 @@ export const authMiddleware = async (
 
     // Verify token
     const decoded = verifyToken(token);
-
+    
     if (!decoded) {
       res.status(401).json({ error: 'Invalid or expired token' });
       return;
@@ -43,7 +42,7 @@ export const authMiddleware = async (
 
     // Get user from database
     const user = await User.findById(decoded.userId).select('-password');
-
+    
     if (!user) {
       res.status(401).json({ error: 'User not found' });
       return;
@@ -70,11 +69,11 @@ export const optionalAuthMiddleware = async (
 ): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
-
+    
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
       const decoded = verifyToken(token);
-
+      
       if (decoded) {
         const user = await User.findById(decoded.userId).select('-password');
         if (user) {
@@ -86,7 +85,7 @@ export const optionalAuthMiddleware = async (
         }
       }
     }
-
+    
     next();
   } catch {
     next();

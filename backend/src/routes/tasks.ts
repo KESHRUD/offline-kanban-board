@@ -1,141 +1,107 @@
-import { Router, Request, Response } from "express";
-import { Task, CreateTaskDTO, UpdateTaskDTO } from "../types";
-import { v4 as uuidv4 } from "uuid";
+import { Router, Request, Response } from 'express';
+import { CreateTaskDTO, UpdateTaskDTO } from '../types';
+import { Task } from '../models';
+import { authMiddleware } from '../middleware/auth';
 
 const router = Router();
 
-// In-memory storage (will be replaced with database later)
-const tasks: Task[] = [
-  {
-    id: "t-1",
-    title: "Setup project structure",
-    description: "Initialize the Kanban PWA with Vite and React",
-    columnId: "todo",
-    tags: ["setup", "frontend"],
-    priority: "high",
-    createdAt: Date.now() - 86400000,
-    subtasks: [],
-    comments: [],
-  },
-  {
-    id: "t-2",
-    title: "Implement drag and drop",
-    description: "Add HTML5 drag and drop functionality",
-    columnId: "in-progress",
-    tags: ["feature", "ux"],
-    priority: "medium",
-    createdAt: Date.now() - 43200000,
-    subtasks: [],
-    comments: [],
-  },
-  {
-    id: "t-3",
-    title: "Configure Service Worker",
-    description: "Setup PWA offline capabilities",
-    columnId: "done",
-    tags: ["pwa", "offline"],
-    priority: "high",
-    createdAt: Date.now() - 172800000,
-    subtasks: [],
-    comments: [],
-  },
-];
+// Apply auth middleware to all task routes
+router.use(authMiddleware);
 
-// GET /api/tasks - Get all tasks
-router.get("/", (_req: Request, res: Response) => {
-  res.json(tasks);
+// GET /api/tasks - Get all tasks for current user
+router.get('/', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const tasks = await Task.find({ createdBy: req.user?.userId })
+      .sort({ createdAt: -1 })
+      .populate('assignedTo', 'name email');
+    res.json({ data: tasks });
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch tasks' });
+  }
 });
 
 // GET /api/tasks/:id - Get task by ID
-router.get("/:id", (req: Request, res: Response): void => {
-  const task = tasks.find((t) => t.id === req.params.id);
-
-  if (!task) {
-    res.status(404).json({ error: "Task not found" });
-    return;
+router.get('/:id', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const task = await Task.findOne({
+      _id: req.params.id,
+      createdBy: req.user?.userId, // Only get user's own tasks
+    }).populate('assignedTo', 'name email');
+    
+    if (!task) {
+      res.status(404).json({ error: 'Task not found' });
+      return;
+    }
+    
+    res.json({ data: task });
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch task' });
   }
-
-  res.json(task);
 });
 
 // POST /api/tasks - Create new task
-router.post("/", (req: Request, res: Response): void => {
-  const dto: CreateTaskDTO = req.body;
-
-  if (!dto.title) {
-    res.status(400).json({ error: "Title is required" });
-    return;
+router.post('/', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const dto: CreateTaskDTO = req.body;
+    
+    if (!dto.title) {
+      res.status(400).json({ error: 'Title is required' });
+      return;
+    }
+    
+    const newTask = await Task.create({
+      title: dto.title,
+      description: dto.description,
+      status: dto.status || 'todo',
+      priority: dto.priority,
+      createdBy: req.user?.userId, // Link to current user
+    });
+    
+    res.status(201).json({ data: newTask });
+  } catch {
+    res.status(500).json({ error: 'Failed to create task' });
   }
-
-  const newTask: Task = {
-    id: `t-${uuidv4()}`,
-    title: dto.title,
-    description: dto.description || "",
-    columnId: dto.columnId || "todo",
-    tags: dto.tags || [],
-    priority: dto.priority || "medium",
-    createdAt: Date.now(),
-    dueDate: dto.dueDate,
-    subtasks: dto.subtasks || [],
-    comments: [],
-    diagramCode: dto.diagramCode,
-  };
-
-  tasks.push(newTask);
-
-  res.status(201).json(newTask);
 });
 
-// PATCH /api/tasks/:id - Update task (partial update)
-router.patch("/:id", (req: Request, res: Response): void => {
-  const taskIndex = tasks.findIndex((t) => t.id === req.params.id);
-
-  if (taskIndex === -1) {
-    res.status(404).json({ error: "Task not found" });
-    return;
+// PUT /api/tasks/:id - Update task
+router.put('/:id', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const dto: UpdateTaskDTO = req.body;
+    
+    const updatedTask = await Task.findOneAndUpdate(
+      { _id: req.params.id, createdBy: req.user?.userId }, // Only update user's own tasks
+      { ...dto },
+      { new: true, runValidators: true }
+    );
+    
+    if (!updatedTask) {
+      res.status(404).json({ error: 'Task not found' });
+      return;
+    }
+    
+    res.json({ data: updatedTask });
+  } catch {
+    res.status(500).json({ error: 'Failed to update task' });
   }
-
-  const dto: UpdateTaskDTO = req.body;
-
-  tasks[taskIndex] = {
-    ...tasks[taskIndex],
-    ...dto,
-  };
-
-  res.json(tasks[taskIndex]);
-});
-
-// PUT /api/tasks/:id - Update task (full replace)
-router.put("/:id", (req: Request, res: Response): void => {
-  const taskIndex = tasks.findIndex((t) => t.id === req.params.id);
-
-  if (taskIndex === -1) {
-    res.status(404).json({ error: "Task not found" });
-    return;
-  }
-
-  const dto: UpdateTaskDTO = req.body;
-
-  tasks[taskIndex] = {
-    ...tasks[taskIndex],
-    ...dto,
-  };
-
-  res.json(tasks[taskIndex]);
 });
 
 // DELETE /api/tasks/:id - Delete task
-router.delete("/:id", (req: Request, res: Response): void => {
-  const taskIndex = tasks.findIndex((t) => t.id === req.params.id);
-
-  if (taskIndex === -1) {
-    res.status(404).json({ error: "Task not found" });
-    return;
+router.delete('/:id', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const deletedTask = await Task.findOneAndDelete({
+      _id: req.params.id,
+      createdBy: req.user?.userId, // Only delete user's own tasks
+    });
+    
+    if (!deletedTask) {
+      res.status(404).json({ error: 'Task not found' });
+      return;
+    }
+    
+    res.status(204).send();
+  } catch {
+    res.status(500).json({ error: 'Failed to delete task' });
   }
-
-  tasks.splice(taskIndex, 1);
-
-  res.status(204).send();
 });
 
 export default router;

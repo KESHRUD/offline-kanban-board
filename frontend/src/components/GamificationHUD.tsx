@@ -12,7 +12,6 @@ export const GamificationHUD: React.FC = () => {
 
     const currentXp = user.xp || 0;
     const currentLevel = user.level || 1;
-    const _nextLevelXp = currentLevel * 100; // Simple linear progression for demo
     const progress = Math.min((currentXp % 100) / 100 * 100, 100);
 
     const isGalilee = theme === 'galilee';

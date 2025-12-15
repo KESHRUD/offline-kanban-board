@@ -1,45 +1,31 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import "./index.css";
-import App from "./App";
-
-// Register Service Worker for PWA
-function registerServiceWorker() {
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker
-        .register("/sw.js")
-        .then((reg) => console.log("âœ… Service Worker registered:", reg.scope))
-        .catch((err) => console.error("âŒ Service Worker registration failed:", err));
-    });
-  }
-}
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
+import './index.css'
+import App from './App.tsx'
+import { AuthProvider } from './contexts/AuthContext'
 
 // Enable MSW in development mode
 async function enableMocking() {
-  if (import.meta.env.MODE === "development") {
+  // Only enable MSW if explicitly requested via URL parameter
+  if (import.meta.env.MODE === 'development') {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("msw") === "on") {
-      const { startMockWorker } = await import("./mocks/browser");
+    if (params.get('msw') === 'on') {
+      const { startMockWorker } = await import('./mocks/browser');
       await startMockWorker();
-      console.log("í´¶ MSW enabled - API calls are mocked");
+      console.log('ðŸ”¶ MSW enabled - API calls are mocked');
     }
   }
 }
 
-// Initialize app
-async function initApp() {
-  await enableMocking();
-  registerServiceWorker();
-
-  const rootElement = document.getElementById("root");
-  if (!rootElement) throw new Error("Failed to find the root element");
-
-  createRoot(rootElement).render(
+enableMocking().then(() => {
+  createRoot(document.getElementById('root')!).render(
     <StrictMode>
-      <App />
-    </StrictMode>
+      <BrowserRouter>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </BrowserRouter>
+    </StrictMode>,
   );
-}
-
-initApp();
+});

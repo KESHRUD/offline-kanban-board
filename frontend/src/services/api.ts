@@ -1,44 +1,106 @@
-import type { Task } from '../types';
+import type { Task, CreateTaskDTO, UpdateTaskDTO } from '../types';
 
-const API_URL = '/api/sessions';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
-export const apiService = {
-  getAllSessions: async (): Promise<Task[]> => {
+interface ApiResponse<T> {
+  data: T;
+  error?: string;
+}
+
+class ApiService {
+  private getAuthHeaders(): HeadersInit {
+    const token = localStorage.getItem('token');
+    return {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    };
+  }
+
+  private async request<T>(
+    endpoint: string,
+    options?: RequestInit
+  ): Promise<ApiResponse<T>> {
     try {
-      const response = await fetch(API_URL);
-      if (!response.ok) throw new Error('Failed to fetch sessions');
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        headers: this.getAuthHeaders(),
+        ...options,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Request failed');
+      }
+
+      if (response.status === 204) {
+        return { data: null as T };
+      }
+
       return await response.json();
     } catch (error) {
-      console.error('API Error (Offline?):', error);
-      // Fallback to offline storage logic or return empty
-      return [];
+      console.error('API Error:', error);
+      throw error;
     }
-  },
+  }
 
-  createSession: async (session: Partial<Task>): Promise<Task> => {
-    const response = await fetch(API_URL, {
+  // Tasks
+  async getTasks(): Promise<Task[]> {
+    const response = await this.request<Task[]>('/tasks');
+    return response.data;
+  }
+
+  async getTask(id: string): Promise<Task> {
+    const response = await this.request<Task>(`/tasks/${id}`);
+    return response.data;
+  }
+
+  async createTask(task: CreateTaskDTO): Promise<Task> {
+    const response = await this.request<Task>('/tasks', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(session),
+      body: JSON.stringify(task),
     });
-    if (!response.ok) throw new Error('Failed to create session');
-    return await response.json();
-  },
+    return response.data;
+  }
 
-  updateSession: async (id: string, updates: Partial<Task>): Promise<Task> => {
-    const response = await fetch(`${API_URL}/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updates),
+  async updateTask(id: string, task: UpdateTaskDTO): Promise<Task> {
+    const response = await this.request<Task>(`/tasks/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(task),
     });
-    if (!response.ok) throw new Error('Failed to update session');
-    return await response.json();
-  },
+    return response.data;
+  }
 
-  deleteSession: async (id: string): Promise<void> => {
-    const response = await fetch(`${API_URL}/${id}`, {
+  async deleteTask(id: string): Promise<void> {
+    await this.request<void>(`/tasks/${id}`, {
       method: 'DELETE',
     });
-    if (!response.ok) throw new Error('Failed to delete session');
   }
+
+  // Boards
+  async getBoards() {
+    const response = await this.request('/boards');
+    return response.data;
+  }
+
+  async createBoard(name: string) {
+    const response = await this.request('/boards', {
+      method: 'POST',
+      body: JSON.stringify({ name }),
+    });
+    return response.data;
+  }
+}
+
+export const apiService = new ApiService();
+
+// Default export for convenience
+const api = {
+  getTasks: () => apiService.getTasks(),
+  getTask: (id: string) => apiService.getTask(id),
+  createTask: (task: CreateTaskDTO) => apiService.createTask(task),
+  updateTask: (id: string, task: UpdateTaskDTO) => apiService.updateTask(id, task),
+  deleteTask: (id: string) => apiService.deleteTask(id),
+  getBoards: () => apiService.getBoards(),
+  createBoard: (name: string) => apiService.createBoard(name),
 };
+
+export default api;

@@ -1,5 +1,5 @@
 import { http, HttpResponse, delay } from "msw";
-import { Task, Column } from "../types";
+import type { Task, Column } from "../types";
 
 // In-memory database for MSW
 let tasks: Task[] = [

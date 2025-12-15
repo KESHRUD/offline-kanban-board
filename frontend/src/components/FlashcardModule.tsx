@@ -13,7 +13,7 @@ import { Plus, Brain, ArrowLeft, RotateCw, Sparkles, Loader2, Trash2, BookOpen, 
 
 declare global {
   interface Window {
-    webkitSpeechRecognition: typeof SpeechRecognition;
+    webkitSpeechRecognition: new () => SpeechRecognition;
   }
 }
 
@@ -164,7 +164,7 @@ export const FlashcardModule: React.FC = () => {
 
             recognition.onstart = () => setIsListening(true);
             
-            recognition.onresult = (event: SpeechRecognitionEvent) => {
+            recognition.onresult = (event: Event & { results: SpeechRecognitionResultList }) => {
                 const transcript = event.results[0][0].transcript;
                 setSpokenAnswer(transcript);
                 
