@@ -1,5 +1,5 @@
 
-import { Deck, User } from '../types';
+import type { Deck, User } from '../types';
 
 declare global {
   interface Window {

@@ -1,5 +1,4 @@
-
-import { Task, Column, Deck, DailyGoal, User } from '../types';
+import type { Task, Column, Deck, DailyGoal, User } from '../types';
 
 const DB_NAME = 'GalileeOS_DB';
 const DB_VERSION = 5; 

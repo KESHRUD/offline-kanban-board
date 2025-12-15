@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from './ThemeContext';
 import { useAuth } from './AuthContext';
 import { db } from '../services/storage';
-import { Deck, Flashcard, DailyGoal } from '../types';
+import type { Deck, Flashcard, DailyGoal } from '../types';
 import { generateFlashcards } from '../services/geminiService';
 import { audioManager, calculateSimilarity } from '../services/audioService';
 import { fetchWikiSummary } from '../services/wikiService';

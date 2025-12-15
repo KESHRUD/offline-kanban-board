@@ -1,6 +1,6 @@
 
 
-import { User, Speciality } from '../types';
+import type { User, Speciality } from '../types';
 
 const STORAGE_KEY = 'sup_galilee_auth_user';
 

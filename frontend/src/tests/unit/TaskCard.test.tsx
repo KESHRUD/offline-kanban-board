@@ -1,99 +1,140 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { TaskCard } from '../../components/TaskCard';
 import type { Task } from '../../types';
 
+// Mock the theme context to return "pro" theme (which shows priority text)
+vi.mock('../../components/ThemeContext', () => ({
+  useTheme: () => ({
+    theme: 'pro',
+    t: (key: string) => key,
+  }),
+  ThemeProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
 describe('TaskCard', () => {
   const mockTask: Task = {
-    id: '1',
+    id: 'task-1',
     title: 'Test Task',
     description: 'Test description',
-    status: 'todo',
-    createdAt: '2025-01-18T00:00:00.000Z',
-    updatedAt: '2025-01-18T00:00:00.000Z',
+    columnId: 'todo',
+    tags: ['frontend', 'urgent'],
+    priority: 'high',
+    createdAt: Date.now(),
+    subtasks: [
+      { id: 'st-1', title: 'Subtask 1', completed: true },
+      { id: 'st-2', title: 'Subtask 2', completed: false },
+    ],
+    comments: [],
   };
 
-  const mockOnStatusChange = vi.fn();
+  const mockOnDragStart = vi.fn();
+  const mockOnEdit = vi.fn();
   const mockOnDelete = vi.fn();
 
-  it('should render task with title and description', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should render task with title', () => {
     render(
       <TaskCard
         task={mockTask}
-        onStatusChange={mockOnStatusChange}
+        onDragStart={mockOnDragStart}
+        onEdit={mockOnEdit}
         onDelete={mockOnDelete}
       />
     );
 
     expect(screen.getByText('Test Task')).toBeInTheDocument();
-    expect(screen.getByText('Test description')).toBeInTheDocument();
   });
 
-  it('should not render description if not provided', () => {
-    const taskWithoutDesc = { ...mockTask, description: undefined };
-    
-    render(
-      <TaskCard
-        task={taskWithoutDesc}
-        onStatusChange={mockOnStatusChange}
-        onDelete={mockOnDelete}
-      />
-    );
-
-    expect(screen.queryByText('Test description')).not.toBeInTheDocument();
-  });
-
-  it('should display formatted creation date', () => {
+  it('should display priority badge', () => {
     render(
       <TaskCard
         task={mockTask}
-        onStatusChange={mockOnStatusChange}
+        onDragStart={mockOnDragStart}
+        onEdit={mockOnEdit}
         onDelete={mockOnDelete}
       />
     );
 
-    const dateElement = screen.getByText(/\d{1,2}\/\d{1,2}\/2025/); // Accept both DD/MM/YYYY and M/D/YYYY
-    expect(dateElement).toBeInTheDocument();
+    // In pro theme, priority is displayed as text
+    expect(screen.getByText('high')).toBeInTheDocument();
   });
 
-  it('should have dragging class when isDragging is true', () => {
+  it('should render tags with hashtag prefix', () => {
+    render(
+      <TaskCard
+        task={mockTask}
+        onDragStart={mockOnDragStart}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+      />
+    );
+
+    // In pro theme, tags are prefixed with #
+    expect(screen.getByText('#frontend')).toBeInTheDocument();
+    expect(screen.getByText('#urgent')).toBeInTheDocument();
+  });
+
+  it('should render subtask progress', () => {
+    render(
+      <TaskCard
+        task={mockTask}
+        onDragStart={mockOnDragStart}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+      />
+    );
+
+    expect(screen.getByText('1/2')).toBeInTheDocument();
+  });
+
+  it('should call onEdit when edit button is clicked', async () => {
+    render(
+      <TaskCard
+        task={mockTask}
+        onDragStart={mockOnDragStart}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+      />
+    );
+
+    const buttons = screen.getAllByRole('button');
+    fireEvent.click(buttons[0]);
+    
+    expect(mockOnEdit).toHaveBeenCalledWith(mockTask);
+  });
+
+  it('should call onDelete when delete button is clicked', () => {
+    render(
+      <TaskCard
+        task={mockTask}
+        onDragStart={mockOnDragStart}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+      />
+    );
+
+    const buttons = screen.getAllByRole('button');
+    fireEvent.click(buttons[1]);
+    
+    expect(mockOnDelete).toHaveBeenCalledWith(mockTask.id);
+  });
+
+  it('should be draggable', () => {
     const { container } = render(
       <TaskCard
         task={mockTask}
-        onStatusChange={mockOnStatusChange}
-        onDelete={mockOnDelete}
-        isDragging={true}
-      />
-    );
-
-    const taskCard = container.querySelector('.task-card');
-    expect(taskCard).toHaveClass('dragging');
-  });
-
-  it('should render status select with correct value', () => {
-    render(
-      <TaskCard
-        task={mockTask}
-        onStatusChange={mockOnStatusChange}
+        onDragStart={mockOnDragStart}
+        onEdit={mockOnEdit}
         onDelete={mockOnDelete}
       />
     );
 
-    const select = screen.getByRole('combobox') as HTMLSelectElement;
-    expect(select.value).toBe('todo');
-  });
-
-  it('should render delete button', () => {
-    render(
-      <TaskCard
-        task={mockTask}
-        onStatusChange={mockOnStatusChange}
-        onDelete={mockOnDelete}
-      />
-    );
-
-    const deleteButton = screen.getByLabelText('Delete task');
-    expect(deleteButton).toBeInTheDocument();
+    const card = container.querySelector('[draggable="true"]');
+    expect(card).toBeInTheDocument();
   });
 });

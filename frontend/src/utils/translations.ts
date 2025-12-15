@@ -1,6 +1,6 @@
 
 
-import { Language } from '../types';
+import type { Language } from '../types';
 
 type Dictionary = Record<string, string>;
 

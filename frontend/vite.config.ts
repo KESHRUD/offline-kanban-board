@@ -25,19 +25,19 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: 'icons/icon-192x192.png',
+            src: 'icons/icon-192x192.svg',
             sizes: '192x192',
-            type: 'image/png',
+            type: 'image/svg+xml',
           },
           {
-            src: 'icons/icon-512x512.png',
+            src: 'icons/icon-512x512.svg',
             sizes: '512x512',
-            type: 'image/png',
+            type: 'image/svg+xml',
           },
           {
-            src: 'icons/icon-512x512.png',
+            src: 'icons/icon-512x512.svg',
             sizes: '512x512',
-            type: 'image/png',
+            type: 'image/svg+xml',
             purpose: 'any maskable',
           },
         ],
@@ -107,7 +107,7 @@ export default defineConfig({
       '**/*.spec.ts', // Exclude .spec.ts (Playwright)
     ],
     include: [
-      'src/tests/unit/**/*.test.{ts,tsx}', // Only unit tests
+      'src/tests/**/*.test.{ts,tsx}', // Only unit tests
     ],
   }, 
   server: {

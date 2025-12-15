@@ -13,7 +13,7 @@ import {
   Points,
   Material
 } from 'three';
-import { Task } from '../types';
+import type { Task } from '../types';
 
 interface ProjectReactorProps {
   tasks: Task[];

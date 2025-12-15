@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Column as ColumnType, Task } from '../types';
+import type { Column as ColumnType, Task } from '../types';
 import { TaskCard } from './TaskCard';
 import { useTheme } from './ThemeContext';
 import { Plus, GripVertical, Trash2, MoreHorizontal } from 'lucide-react';

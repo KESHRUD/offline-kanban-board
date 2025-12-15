@@ -25,6 +25,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
+app.get("/", (_, res) => {
+  res.json({ 
+    name: "Offline Kanban Board API",
+    version: "1.0.0",
+    endpoints: [
+      "GET /api/health",
+      "GET /api/tasks",
+      "GET /api/columns",
+      "GET /api/boards",
+      "POST /api/sync"
+    ]
+  });
+});
+
 app.get("/api/health", (_, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });

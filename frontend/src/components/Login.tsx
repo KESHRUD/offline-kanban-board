@@ -4,7 +4,7 @@ import { useAuth } from './AuthContext';
 import { useTheme } from './ThemeContext';
 import { User, Lock, ArrowRight, Terminal, ArrowLeft, Mail, Cpu, Zap, Radio, Microscope, Activity, GraduationCap } from 'lucide-react';
 import { Logo } from './Logo';
-import { Speciality } from '../types';
+import type { Speciality } from '../types';
 
 interface LoginProps {
     onBack?: () => void;

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Task, Priority, Subtask, Comment } from '../types';
+import type { Task, Priority, Subtask, Comment } from '../types';
 import { useTheme } from './ThemeContext';
 import { useAuth } from './AuthContext';
 import { X, Loader2, Bot, Plus, Calendar, CheckCircle, Circle, Send, FileCode, Edit3, Image } from 'lucide-react';

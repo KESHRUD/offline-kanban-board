@@ -1,5 +1,5 @@
 
-import { ThemeMode } from '../types';
+import type { ThemeMode } from '../types';
 
 class AudioService {
   private ctx: AudioContext | null = null;

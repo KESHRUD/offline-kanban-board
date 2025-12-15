@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Task, Priority } from '../types';
+import type { Task, Priority } from '../types';
 import { useTheme } from './ThemeContext';
 import { Trash2, Edit2, Clock, Cpu, CheckSquare, MessageSquare } from 'lucide-react';
 

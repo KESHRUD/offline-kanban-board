@@ -1,12 +1,12 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { TaskCard } from "../../components/TaskCard";
-import { Task } from "../../types";
+import type { Task } from "../../types";
 
-// Mock the theme context
+// Mock the theme context to return "pro" theme
 vi.mock("../../components/ThemeContext", () => ({
   useTheme: () => ({
-    theme: "light",
+    theme: "pro",
     t: (key: string) => key,
   }),
 }));
@@ -35,6 +35,10 @@ describe("TaskCard Component", () => {
   const mockOnDelete = vi.fn();
   const mockOnDragStart = vi.fn();
 
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("renders task title correctly", () => {
     render(
       <TaskCard
@@ -58,12 +62,10 @@ describe("TaskCard Component", () => {
       />
     );
 
-    // High priority should be visible
-    const priorityBadge = screen.getByText(/high/i);
-    expect(priorityBadge).toBeInTheDocument();
+    expect(screen.getByText("high")).toBeInTheDocument();
   });
 
-  it("renders tags", () => {
+  it("renders tags with hashtag prefix", () => {
     render(
       <TaskCard
         task={mockTask}
@@ -73,8 +75,9 @@ describe("TaskCard Component", () => {
       />
     );
 
-    expect(screen.getByText("test")).toBeInTheDocument();
-    expect(screen.getByText("frontend")).toBeInTheDocument();
+    // In "pro" theme, tags are prefixed with #
+    expect(screen.getByText("#test")).toBeInTheDocument();
+    expect(screen.getByText("#frontend")).toBeInTheDocument();
   });
 
   it("calls onEdit when edit button is clicked", () => {
@@ -87,8 +90,9 @@ describe("TaskCard Component", () => {
       />
     );
 
-    const editButton = screen.getByRole("button", { name: /edit/i });
-    fireEvent.click(editButton);
+    // Find all buttons - first one is edit, second is delete
+    const buttons = screen.getAllByRole("button");
+    fireEvent.click(buttons[0]);
 
     expect(mockOnEdit).toHaveBeenCalledWith(mockTask);
   });
@@ -103,14 +107,15 @@ describe("TaskCard Component", () => {
       />
     );
 
-    const deleteButton = screen.getByRole("button", { name: /delete/i });
-    fireEvent.click(deleteButton);
+    // Find all buttons - first one is edit, second is delete
+    const buttons = screen.getAllByRole("button");
+    fireEvent.click(buttons[1]);
 
     expect(mockOnDelete).toHaveBeenCalledWith(mockTask.id);
   });
 
   it("is draggable", () => {
-    render(
+    const { container } = render(
       <TaskCard
         task={mockTask}
         onEdit={mockOnEdit}
@@ -119,7 +124,7 @@ describe("TaskCard Component", () => {
       />
     );
 
-    const card = screen.getByTestId("task-card");
-    expect(card).toHaveAttribute("draggable", "true");
+    const card = container.querySelector('[draggable="true"]');
+    expect(card).toBeInTheDocument();
   });
 });

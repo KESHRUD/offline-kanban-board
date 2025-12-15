@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { ThemeMode, Language } from '../types';
+import type { ThemeMode, Language } from '../types';
 import { getTranslation } from '../utils/translations';
 
 interface ThemeContextType {
