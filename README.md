@@ -24,11 +24,11 @@ Galilée OS is a **full-stack Progressive Web Application** designed for enginee
 
 ### 🛠️ Tech Stack
 
-| Frontend | Backend | Database | DevOps |
+| Frontend | Backend | Storage | DevOps |
 |:--------:|:-------:|:--------:|:------:|
-| ![React](https://img.shields.io/badge/-React_19-61DAFB?style=flat-square&logo=react&logoColor=black) | ![Node.js](https://img.shields.io/badge/-Node.js_20-339933?style=flat-square&logo=node.js&logoColor=white) | ![MongoDB](https://img.shields.io/badge/-MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white) | ![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=docker&logoColor=white) |
-| ![TypeScript](https://img.shields.io/badge/-TypeScript_5.8-3178C6?style=flat-square&logo=typescript&logoColor=white) | ![Express](https://img.shields.io/badge/-Express-000000?style=flat-square&logo=express&logoColor=white) | ![IndexedDB](https://img.shields.io/badge/-IndexedDB-FF6F00?style=flat-square&logo=firebase&logoColor=white) | ![GitHub Actions](https://img.shields.io/badge/-GitHub_Actions-2088FF?style=flat-square&logo=github-actions&logoColor=white) |
-| ![Tailwind CSS](https://img.shields.io/badge/-Tailwind_CSS_4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white) | ![JWT](https://img.shields.io/badge/-JWT-000000?style=flat-square&logo=jsonwebtokens&logoColor=white) | | ![Nginx](https://img.shields.io/badge/-Nginx-009639?style=flat-square&logo=nginx&logoColor=white) |
+| ![React](https://img.shields.io/badge/-React_19-61DAFB?style=flat-square&logo=react&logoColor=black) | ![Node.js](https://img.shields.io/badge/-Node.js_20-339933?style=flat-square&logo=node.js&logoColor=white) | ![IndexedDB](https://img.shields.io/badge/-IndexedDB-FF6F00?style=flat-square&logo=indexeddb&logoColor=white) | ![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=docker&logoColor=white) |
+| ![TypeScript](https://img.shields.io/badge/-TypeScript_5.8-3178C6?style=flat-square&logo=typescript&logoColor=white) | ![Express](https://img.shields.io/badge/-Express-000000?style=flat-square&logo=express&logoColor=white) | ![localStorage](https://img.shields.io/badge/-localStorage-4285F4?style=flat-square&logo=googlechrome&logoColor=white) | ![GitHub Actions](https://img.shields.io/badge/-GitHub_Actions-2088FF?style=flat-square&logo=github-actions&logoColor=white) |
+| ![Tailwind CSS](https://img.shields.io/badge/-Tailwind_CSS_4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white) | ![MSW](https://img.shields.io/badge/-MSW_2-FF6A33?style=flat-square&logo=mockserviceworker&logoColor=white) | | ![Nginx](https://img.shields.io/badge/-Nginx-009639?style=flat-square&logo=nginx&logoColor=white) |
 | ![Vite](https://img.shields.io/badge/-Vite_7-646CFF?style=flat-square&logo=vite&logoColor=white) | ![Gemini AI](https://img.shields.io/badge/-Gemini_AI-8E75B2?style=flat-square&logo=google&logoColor=white) | | ![Netlify](https://img.shields.io/badge/-Netlify-00C7B7?style=flat-square&logo=netlify&logoColor=white) |
 
 </div>
@@ -80,21 +80,22 @@ cd ../backend && npm install
 
 ### 🔧 Environment Variables
 
-Create `.env` files in both `frontend/` and `backend/` directories:
+Create `.env` files from the examples:
 
 **frontend/.env**
 ```env
 VITE_GEMINI_API_KEY=your_gemini_api_key
-VITE_API_URL=http://localhost:3001/api
+VITE_ENABLE_MSW=true
 ```
 
-**backend/.env**
+**backend/.env** (optional - app works fully offline)
 ```env
 PORT=3001
-MONGODB_URI=mongodb://localhost:27017/galilee
-JWT_SECRET=your_jwt_secret
 NODE_ENV=development
+CORS_ORIGIN=http://localhost:5173
 ```
+
+> **Note:** This app uses **localStorage/IndexedDB** for data persistence. No database setup required!
 
 ### ▶️ Running Locally
 
@@ -128,18 +129,16 @@ offline-kanban-board/
 ├── frontend/                 # React + Vite PWA
 │   ├── src/
 │   │   ├── components/      # React components
-│   │   ├── services/        # API, storage, auth
+│   │   ├── services/        # Storage, auth, AI services
 │   │   ├── hooks/           # Custom React hooks
 │   │   ├── types/           # TypeScript types
 │   │   └── utils/           # Utilities & translations
 │   ├── tests/e2e/           # Playwright E2E tests
 │   └── public/              # Static assets & SW
-├── backend/                  # Express API
+├── backend/                  # Express API (optional)
 │   ├── src/
-│   │   ├── controllers/     # Route handlers
-│   │   ├── models/          # MongoDB schemas
 │   │   ├── routes/          # API routes
-│   │   └── middleware/      # Auth, error handling
+│   │   └── middleware/      # Error handling
 │   └── tests/               # Backend unit tests
 ├── docker/                   # Dockerfiles
 └── .github/workflows/        # CI/CD pipelines
@@ -162,16 +161,18 @@ cd backend && npm run test
 
 ---
 
-## 🔑 API Endpoints
+## 💾 Data Storage
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/auth/register` | Create user account |
-| `POST` | `/api/auth/login` | User login |
-| `GET` | `/api/boards` | Get user's boards |
-| `POST` | `/api/boards` | Create new board |
-| `PUT` | `/api/boards/:id` | Update board |
-| `DELETE` | `/api/boards/:id` | Delete board |
+This app uses **client-side storage** (no backend database required):
+
+| Store | Technology | Purpose |
+|-------|------------|---------|
+| Tasks & Columns | IndexedDB | Kanban board data |
+| Flashcard Decks | IndexedDB | Revision cards |
+| User Session | localStorage | Authentication state |
+| Daily Goals | IndexedDB | Gamification progress |
+
+> **Offline-First:** All data persists locally. The app works fully without internet connection.
 
 ---
 
