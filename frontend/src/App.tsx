@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, useRef } from 'react';
-import { Column as ColumnType, Task, ViewMode } from './types';
+import type { Column as ColumnType, Task, ViewMode } from './types';
 import { db } from './services/storage';
 import { Column } from './components/Column';
 import { EditModal } from './components/EditModal';
