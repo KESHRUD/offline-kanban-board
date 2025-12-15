@@ -5,7 +5,6 @@ import dotenv from 'dotenv';
 import { errorHandler } from './middleware/errorHandler';
 import tasksRouter from './routes/tasks';
 import boardsRouter from './routes/boards';
-import authRouter from './routes/auth';
 
 dotenv.config();
 
@@ -26,18 +25,16 @@ app.get('/api/health', (_, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.use('/api/auth', authRouter);
 app.use('/api/tasks', tasksRouter);
 app.use('/api/boards', boardsRouter);
 
 // Error handling (must be last)
 app.use(errorHandler);
 
-// Start server only if not in test mode
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.START_SERVER !== 'false') {
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`íº€ Server running on http://localhost:${PORT}`);
-    console.log(`í³‹ Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`ðŸš€ Server running on http://localhost:${PORT}`);
+    console.log(`ðŸ“‹ Environment: ${process.env.NODE_ENV || 'development'}`);
   });
 }
 

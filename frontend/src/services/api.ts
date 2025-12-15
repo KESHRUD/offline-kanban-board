@@ -8,21 +8,16 @@ interface ApiResponse<T> {
 }
 
 class ApiService {
-  private getAuthHeaders(): HeadersInit {
-    const token = localStorage.getItem('token');
-    return {
-      'Content-Type': 'application/json',
-      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-    };
-  }
-
   private async request<T>(
     endpoint: string,
     options?: RequestInit
   ): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${API_URL}${endpoint}`, {
-        headers: this.getAuthHeaders(),
+        headers: {
+          'Content-Type': 'application/json',
+          ...options?.headers,
+        },
         ...options,
       });
 
@@ -44,17 +39,17 @@ class ApiService {
 
   // Tasks
   async getTasks(): Promise<Task[]> {
-    const response = await this.request<Task[]>('/tasks');
+    const response = await this.request<Task[]>('/api/tasks');
     return response.data;
   }
 
   async getTask(id: string): Promise<Task> {
-    const response = await this.request<Task>(`/tasks/${id}`);
+    const response = await this.request<Task>(`/api/tasks/${id}`);
     return response.data;
   }
 
   async createTask(task: CreateTaskDTO): Promise<Task> {
-    const response = await this.request<Task>('/tasks', {
+    const response = await this.request<Task>('/api/tasks', {
       method: 'POST',
       body: JSON.stringify(task),
     });
@@ -62,7 +57,7 @@ class ApiService {
   }
 
   async updateTask(id: string, task: UpdateTaskDTO): Promise<Task> {
-    const response = await this.request<Task>(`/tasks/${id}`, {
+    const response = await this.request<Task>(`/api/tasks/${id}`, {
       method: 'PUT',
       body: JSON.stringify(task),
     });
@@ -70,19 +65,19 @@ class ApiService {
   }
 
   async deleteTask(id: string): Promise<void> {
-    await this.request<void>(`/tasks/${id}`, {
+    await this.request<void>(`/api/tasks/${id}`, {
       method: 'DELETE',
     });
   }
 
   // Boards
   async getBoards() {
-    const response = await this.request('/boards');
+    const response = await this.request('/api/boards');
     return response.data;
   }
 
   async createBoard(name: string) {
-    const response = await this.request('/boards', {
+    const response = await this.request('/api/boards', {
       method: 'POST',
       body: JSON.stringify({ name }),
     });
@@ -91,16 +86,3 @@ class ApiService {
 }
 
 export const apiService = new ApiService();
-
-// Default export for convenience
-const api = {
-  getTasks: () => apiService.getTasks(),
-  getTask: (id: string) => apiService.getTask(id),
-  createTask: (task: CreateTaskDTO) => apiService.createTask(task),
-  updateTask: (id: string, task: UpdateTaskDTO) => apiService.updateTask(id, task),
-  deleteTask: (id: string) => apiService.deleteTask(id),
-  getBoards: () => apiService.getBoards(),
-  createBoard: (name: string) => apiService.createBoard(name),
-};
-
-export default api;

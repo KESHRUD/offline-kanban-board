@@ -7,44 +7,38 @@ import './index.css';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
-  
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
-        <div className="orb orb-1" />
-        <div className="orb orb-2" />
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
-        </div>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <svg className="animate-spin" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2">
+          <circle cx="12" cy="12" r="10" strokeOpacity="0.3" />
+          <path d="M12 2a10 10 0 0 1 10 10" />
+        </svg>
       </div>
     );
   }
-  
-  return user ? <>{children}</> : <Navigate to="/login" replace />;
+  return user ? <>{children}</> : <Navigate to="/login" />;
 }
 
-function App() {
+export default function App() {
   const { user, isLoading } = useAuth();
-
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="orb orb-1" />
         <div className="orb orb-2" />
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
-        </div>
+        <svg className="animate-spin" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2">
+          <circle cx="12" cy="12" r="10" strokeOpacity="0.3" />
+          <path d="M12 2a10 10 0 0 1 10 10" />
+        </svg>
       </div>
     );
   }
-
   return (
     <Routes>
-      <Route path="/login" element={user ? <Navigate to="/" replace /> : <LoginPage />} />
-      <Route path="/register" element={user ? <Navigate to="/" replace /> : <RegisterPage />} />
+      <Route path="/login" element={user ? <Navigate to="/" /> : <LoginPage />} />
+      <Route path="/register" element={user ? <Navigate to="/" /> : <RegisterPage />} />
       <Route path="/" element={<ProtectedRoute><BoardPage /></ProtectedRoute>} />
     </Routes>
   );
 }
-
-export default App;

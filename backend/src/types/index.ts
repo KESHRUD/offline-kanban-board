@@ -15,6 +15,12 @@ export interface Board {
   updatedAt: string;
 }
 
+export interface Column {
+  id: string;
+  title: string;
+  order: number;
+}
+
 export interface CreateTaskDTO {
   title: string;
   description?: string;
@@ -27,4 +33,9 @@ export interface UpdateTaskDTO {
   description?: string;
   status?: 'todo' | 'in-progress' | 'done';
   priority?: 'low' | 'medium' | 'high';
+}
+
+export interface CreateColumnDTO {
+  title: string;
+  order?: number;
 }
