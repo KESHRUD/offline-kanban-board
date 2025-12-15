@@ -4,7 +4,7 @@
 
 **Progressive Web Application for Sup Galilée Engineering Students**
 
-[![CI/CD Pipeline](https://github.com/yourusername/offline-kanban-board/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/offline-kanban-board/actions)
+[![CI/CD Pipeline](https://github.com/KESHRUD/Galilee-OS/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/offline-kanban-board/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.2-61DAFB.svg?logo=react)](https://react.dev/)
@@ -204,5 +204,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Made with ❤️ for Sup Galilée**
 
 ![Sup Galilée](https://img.shields.io/badge/Sup_Galilée-Sorbonne_Paris_Nord-0055A4?style=for-the-badge)
+
 
 </div>
