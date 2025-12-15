@@ -49,30 +49,12 @@ dist-ssr
 # OS
 Thumbs.db
 
-# Documentation files (keep only main README.md)
-COPILOT_PROMPT.txt
-PROMPT-v2.md
-PROMPT-v2.pdf
-INTEGRATION_PLAN.md
-INTEGRATION_PLAN.pdf
-PROJECT_PLAN.pdf
-README.pdf
-SETUP_CHECKLIST.pdf
-server.log
-
 # Backup/Copy folders
 frontcopy/
 
 # Generated PDF exports
-*.pdf
-!docs/*.pdf
 .DS_Store
 
 # Docker
 .dockerignore
 docker-compose.override.yml
-
-# Local development documentation
-COPILOT_PROMPT.txt
-PROJECT_PLAN.md
-SETUP_CHECKLIST.md
